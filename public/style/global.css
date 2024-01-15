@@ -1,0 +1,16 @@
+:root {
+	--blue: #1da1f2;
+	--black: #14171a;
+	--dark-gray: #657786;
+	--light-gray: #aab8c2;
+	--extra-light-gray: #e1e8ed;
+	--Extra-Extra-Light-Gray: #f5f8fa;
+	--white: #ffffff;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: 'Poppins', sans-serif;
+}
