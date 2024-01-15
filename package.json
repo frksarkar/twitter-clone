@@ -1,0 +1,19 @@
+{
+  "name": "twitter-clone",
+  "version": "1.0.0",
+  "description": "it is a full-stack project",
+  "main": "server.js",
+  "scripts": {
+    "test": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "author": "faruk sarkar",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "pug": "^3.0.2"
+  }
+}
