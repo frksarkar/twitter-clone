@@ -4,18 +4,19 @@ block header
     link(rel="stylesheet", href="style/login.css")
 
 block body 
-    //- img(src="https://static.cdnlogo.com/logos/t/48/twitter.png", alt="", srcset="")
     .container 
         .wrapper 
+            .logo
+                img(src="https://static.cdnlogo.com/logos/t/48/twitter.png", alt="", srcset="")
             h2 Log in to Twitter 
-            form(action="", method="post") 
-                input#emailInput(type="text", name="email", placeholder="Username or email", require='')
-                input#passwordInput(type="password", name="password",placeholder='Password', require='')
+            form(method="post") 
+                input#emailInput(type="text", name="email", placeholder="Username or email", required='')
+                input#passwordInput(type="password", name="password",placeholder='Password', required='')
                 p
                     input#remember(type="checkbox", name="")
                     span Remember me 
                         a(href="forgot-password") Forgot password?
                 input(type="submit", value="Login")
             p Don't have an account? 
-                a(href="register") Sign up >>
+                a(href="/register") Sign up >>
 

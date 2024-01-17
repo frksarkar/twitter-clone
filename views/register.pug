@@ -1,0 +1,34 @@
+extends layout/header.pug
+
+block header 
+    link(rel="stylesheet", href="style/login.css")
+
+block body 
+    .container 
+        .wrapper 
+            .logo
+                img(src="https://static.cdnlogo.com/logos/t/48/twitter.png", alt="", srcset="")
+            h2 Sign up on Twitter 
+            form#register-form(method="post" onSubmit="event.preventDefault(); checkPassword();") 
+                input(type="text", name="userName", placeholder="User Name", required='')
+                input(type="email", name="email", placeholder="Email", required='')
+                input#password(type="password", name="password",placeholder='Password', required='')
+                input#conform-password(type="password", name="conform-password",placeholder='Conform Password', required='')
+                p
+                    input#remember(type="checkbox", name="terms")
+                    span By creating an account you agree to our 
+                        br 
+                        a(href="*") Terms of Service
+                input(type="submit", value="Sign up")
+            p  already have an account? 
+                a(href="/login") Login here.>>
+    script.
+        const password = document.getElementById('password');
+        const conformPassword = document.getElementById('conform-password');
+        const registerForm = document.getElementById('register-form');
+        
+        function checkPassword() {
+            if(password.value !== conformPassword.value) {
+                alert('password does not match. please try again.');
+            }
+        }

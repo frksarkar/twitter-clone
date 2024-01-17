@@ -1,0 +1,9 @@
+link(rel="stylesheet", href="/style/mixins.css")
+mixin postCreate()
+    .secContainer
+        .imgContainer 
+            img(src="https://i.pravatar.cc/300", alt="User's profile picture", srcset="")
+        .textareaContainer 
+            textarea#postbox(placeholder="What's happening?")
+            .buttonContainer
+                button#submitPostBtn(disabled) Post
