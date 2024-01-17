@@ -1,7 +1,8 @@
 exports.viewLoginForm = function (req, res, next) {
 	res.render('login');
-}
+};
 
 exports.redirectToLogin = function (req, res, next) {
-    res.redirect('/login');
-}
+	res.render('main-page');
+	// res.redirect('/login');
+};
