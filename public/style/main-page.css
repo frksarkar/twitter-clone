@@ -1,0 +1,48 @@
+.row {
+	height: 100vh;
+	display: grid;
+	grid-template-columns: 1fr 2fr 1fr;
+	gap: 1rem;
+}
+
+.colum-nav {
+	display: flex;
+	justify-content: end;
+}
+
+.icon {
+	display: flex;
+	gap: 0.3rem;
+	flex-direction: column;
+	font-size: 1.8rem;
+	align-items: center;
+	margin-top: 5rem;
+}
+
+.icon i {
+	color: var(--black);
+	display: flex !important;
+	border-radius: 50%;
+	justify-content: center;
+	align-items: center;
+	height: 3rem;
+	width: 3rem;
+	transition: all 300ms ease;
+	&:hover {
+		background: var(--blue-light);
+		color: var(--blue);
+	}
+	&.active {
+		color: var(--blue);
+	}
+}
+
+.colum-body {
+	border-right: 1px solid var(--extra-light-gray);
+	border-left: 1px solid var(--extra-light-gray);
+}
+
+.hading {
+	border-bottom: 1px solid var(--extra-light-gray);
+	padding: 1rem;
+}

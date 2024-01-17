@@ -4,13 +4,31 @@
 	--dark-gray: #657786;
 	--light-gray: #aab8c2;
 	--extra-light-gray: #e1e8ed;
-	--Extra-Extra-Light-Gray: #f5f8fa;
+	--extra-extra-light-gray: #f5f8fa;
 	--white: #ffffff;
+	--blue-light: #9bd1f9;
+
+	--space: 1rem;
 }
 
 * {
 	margin: 0;
 	padding: 0;
+	outline: none;
+	text-decoration: none;
 	box-sizing: border-box;
 	font-family: 'Poppins', sans-serif;
+}
+
+img {
+	width: 100%;
+}
+
+.container {
+	width: 90%;
+	margin: 0 auto;
+}
+
+.spacer {
+	padding: 0 1rem;
 }
