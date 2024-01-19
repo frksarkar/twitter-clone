@@ -5,6 +5,6 @@ const { createPost } = require('../controller/postController');
 
 const postRouter = express.Router();
 
-postRouter.post('/', upload.none(), createPost);
+postRouter.post('/', createPost);
 
 exports.postRouter = postRouter;
