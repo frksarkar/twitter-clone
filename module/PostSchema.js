@@ -5,8 +5,9 @@ const Schema = mongoose.Schema;
 const postSchema = new Schema(
 	{
 		content: String,
-		postedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+		postedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 		pinned: Boolean,
+		like: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 	},
 	{ timestamps: true }
 );

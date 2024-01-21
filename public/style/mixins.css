@@ -1,8 +1,8 @@
-.secContainer {
+.postMainContainer {
 	display: flex;
-	padding: 1rem;
+	padding: var(--spacing);
 	gap: 1rem;
-	border-bottom: 5px solid var(--extra-light-gray);
+	border-bottom: 0.5rem solid var(--extra-light-gray);
 }
 
 .imgContainer {
@@ -20,7 +20,7 @@
 
 #postbox {
 	border: none;
-	width: 100%;
+	flex-grow: 1;
 	resize: none;
 	font-size: 1.2rem;
 }
@@ -35,5 +35,54 @@
 	&:disabled {
 		background-color: var(--blue-light);
 		cursor: inherit;
+	}
+}
+
+.main-post-container {
+	display: flex;
+	flex-direction: column;
+}
+
+.post-container {
+	display: flex;
+	gap: 1rem;
+	padding: var(--spacing);
+	border-bottom: 1px solid var(--extra-light-gray);
+}
+
+.post-body {
+	flex-grow: 1;
+}
+
+.post-body span {
+	padding-right: 3px;
+	&:first-child {
+		font-weight: 600;
+	}
+}
+
+.postFooter {
+	display: flex;
+	align-items: center;
+}
+.post-btn-container {
+	flex-grow: 1;
+}
+
+.post-btn-container button {
+	border: none;
+	background-color: transparent;
+	cursor: pointer;
+	padding: 5px;
+	border-radius: 50%;
+	line-height: 5px;
+	transition: all 0.3s ease;
+	i {
+		font-size: 1rem;
+		color: var(--dark-gray);
+		z-index: -1;
+	}
+	&:hover {
+		background-color: var(--blue-light);
 	}
 }

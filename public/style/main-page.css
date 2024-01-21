@@ -1,5 +1,4 @@
 .row {
-	height: 100vh;
 	display: grid;
 	grid-template-columns: 1fr 2fr 1fr;
 	gap: 1rem;
@@ -38,11 +37,13 @@
 }
 
 .colum-body {
+	display: flex;
+	flex-direction: column;
 	border-right: 1px solid var(--extra-light-gray);
 	border-left: 1px solid var(--extra-light-gray);
 }
 
-.hading {
+.main-body-title {
 	border-bottom: 1px solid var(--extra-light-gray);
 	padding: 1rem;
 }

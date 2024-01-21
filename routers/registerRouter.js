@@ -7,4 +7,6 @@ const registerRouter = express.Router();
 
 registerRouter.get('/', fieldValidation, register.viewRegisterForm);
 
+registerRouter.post('/', fieldValidation, register.postRegisterForm);
+
 exports.registerRouter = registerRouter;

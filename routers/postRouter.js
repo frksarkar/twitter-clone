@@ -1,10 +1,10 @@
 const express = require('express');
-const multer = require('multer');
-const upload = multer();
-const { createPost } = require('../controller/postController');
+const post = require('../controller/postController');
 
 const postRouter = express.Router();
 
-postRouter.post('/', createPost);
+postRouter.post('/', post.createPost);
+
+postRouter.get('/', post.getAllPosts);
 
 exports.postRouter = postRouter;
