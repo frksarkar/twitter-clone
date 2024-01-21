@@ -2,13 +2,14 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const session = require('express-session');
 
 const { loginRouter } = require('../routers/loginRouter');
-const { redirectToLogin } = require('../controller/loginController');
 const { registerRouter } = require('../routers/registerRouter');
 const { errorHandler } = require('../middleware/errorHandler');
 const { postRouter } = require('../routers/postRouter');
-const session = require('express-session');
+const { isLogin } = require('../middleware/authHandler');
+const { homeRouter } = require('../routers/homeRouter');
 
 const app = express();
 
@@ -27,10 +28,10 @@ app.use(
 );
 
 // routers
-app.use('/api/post', postRouter);
+app.use('/api/posts', postRouter);
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
-app.use('/', redirectToLogin);
+app.use('/', isLogin, homeRouter);
 
 //todo: not found router
 
