@@ -20,16 +20,10 @@ exports.postLogin = async function (req, res, next) {
 		}
 
 		if (!(req.session && req.session.user)) {
-			req.session.user = {
-				userName: user.userName,
-				email: user.email,
-				userId: user._id,
-			};
+			req.session.user = user;
 		}
-		res.redirect('/');
+		res.redirect('/')
 	} catch (error) {
 		next(error);
 	}
 };
-
-

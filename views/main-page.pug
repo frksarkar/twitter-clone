@@ -3,6 +3,10 @@ extends layout/header.pug
 block header
     link(rel="stylesheet", href="/style/main-page.css")
 block body 
+    script. 
+        //- console.log('hello world')
+        const user = !{user}
+
     .container 
         .row 
             .colum.colum-nav 

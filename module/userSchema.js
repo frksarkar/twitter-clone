@@ -13,7 +13,8 @@ const userSchema = new Schema(
 			required: true,
 			default: 'https://i.pravatar.cc/300',
 		},
-		like: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+		likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+		retweet: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
 	},
 	{ timestamps: true }
 );
