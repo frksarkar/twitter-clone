@@ -10,12 +10,14 @@ const { errorHandler } = require('../middleware/errorHandler');
 const { postRouter } = require('../routers/postRouter');
 const { isLogin } = require('../middleware/authHandler');
 const { homeRouter } = require('../routers/homeRouter');
+const morgan = require('morgan');
 
 const app = express();
 
 // set default values
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(morgan('dev'));
 app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(
