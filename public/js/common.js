@@ -52,41 +52,68 @@ submitBtm.addEventListener('click', async (event) => {
 
 // create a new html element
 function createHtml(postData) {
+	const retweetData = postData.retweetData ? true : false;
+	let retweetBy = '';
+	let retweetText = '';
+	let retweetTimestamp = '';
+	if (retweetData) {
+		retweetBy = postData.postedBy.userName;
+		retweetText = `<span>retweeted by <a href='/profile/${retweetBy}'>@${retweetBy}</a></span>`;
+		retweetTimestamp = `<span>${timeDifference(
+			Date.now(),
+			new Date(postData.createdAt)
+		)}</span>`;
+		// this post data place under the end of line
+		postData = postData.retweetData;
+	}
 	const userData = postData.postedBy;
+	const likes = postData.likes?.length;
+	const retweet = postData.retweetUsers?.length;
+	const activeLikeClass = postData?.likes?.includes(user._id) ? 'active' : '';
+	const activeRetweetClass = postData?.retweetUsers?.includes(user._id)
+		? 'active'
+		: '';
 	const timestamp = timeDifference(Date.now(), new Date(postData.createdAt));
 
-	return `<div class="post-container" data-id='${postData._id}'>
-				<div class="imgContainer">
-					<img
-						src="https://i.pravatar.cc/300"
-						alt="User's profile picture"
-						srcset=""
-					/>
-				</div>
-				<div class="post-body">
-					<div class="post-header">
-						<span>${userData.userName}</span>
-						<span>@${userData.userName}</span>
-						<span>${timestamp}</span>
+	return `<div class="post" data-id='${postData._id}'>
+			<div class='re-post-container'> 
+			${retweetText} ${retweetTimestamp}
+			</div>
+				<div class='post-container'>
+					<div class="imgContainer">
+						<img
+							src="https://i.pravatar.cc/300"
+							alt="User's profile picture"
+							srcset=""
+						/>
 					</div>
-					<div class="postBody">
-						<p>${postData.content}</p>
-					</div>
-					<div class="postFooter">
-						<div class="post-btn-container">
-							<button class='comment-btn'>
-								<i class="fa-regular fa-comment"></i>
-							</button>
+					<div class="post-body">
+						<div class="post-header">
+							<span>${userData?.userName}</span>
+							<span>@${userData?.userName}</span>
+							<span>${timestamp}</span>
 						</div>
-						<div class="post-btn-container">
-							<button class='share-btn'>
-								<i class="fa-solid fa-retweet"></i>
-							</button>
+						<div class="postBody">
+							<p>${postData?.content}</p>
 						</div>
-						<div class="post-btn-container">
-							<button class='like-btn'>
-								<i class="fa-regular fa-heart"></i>
-							</button>
+						<div class="postFooter">
+							<div class="post-btn-container">
+								<button class='comment-btn'>
+									<i class="fa-regular fa-comment"></i>
+								</button>
+							</div>
+							<div class="post-btn-container green">
+								<button class='tweet-btn ${activeRetweetClass}'>
+									<i class="fa-solid fa-retweet"></i>
+									<span>${retweet || ''}</span>
+								</button>
+							</div>
+							<div class="post-btn-container red">
+								<button class='like-btn ${activeLikeClass}'>
+									<i class="fa-regular fa-heart"></i>
+									<span>${likes || ''}</span>
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -118,4 +145,3 @@ function timeDifference(current, previous) {
 		return Math.round(elapsed / msPerYear) + ' years ago';
 	}
 }
-
