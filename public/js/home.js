@@ -20,13 +20,49 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 document.addEventListener('click', (event) => {
 	const likeBtn = event.target.closest('.like-btn');
-	if (likeBtn) {
-	}
-	const elementId = event.target.closest('.post-container')
-		? event.target.closest('.post-container').dataset.id
+	const tweetBtn = event.target.closest('.tweet-btn');
+	const postContainer = event.target.closest('.post');
+	const elementId = postContainer
+		? event.target.closest('.post').dataset.id
 		: null;
+
+	if (likeBtn) {
+		pressLikeBtn(likeBtn, elementId);
+	} else if (tweetBtn) {
+		pressTweetBtn(tweetBtn, elementId);
+	}
 });
 
-function pressLikeBtn(event) {
-	console.log(event);
+async function pressLikeBtn(likeBtn, elementId) {
+	const result = await fetch(`/api/posts/${elementId}/like`, {
+		method: 'PUT',
+	});
+	const data = await result.json();
+	const like = likeBtn.querySelector('span');
+	like.innerText = data.data.likes.length || '';
+
+	const userLike = data.data.likes.includes(user._id);
+	if (userLike) {
+		likeBtn.classList.add('active');
+	} else {
+		likeBtn.classList.remove('active');
+	}
+}
+
+async function pressTweetBtn(tweetBtn, elementId) {
+	const result = await fetch(`/api/posts/${elementId}/tweet`, {
+		method: 'POST',
+	});
+	const data = await result.json();
+	const tweet = tweetBtn.querySelector('span');
+	tweet.innerText = data.updatedPost.retweetUsers.length || '';
+
+	const userLike = data.updatedPost.retweetUsers.includes(user._id);
+	if (userLike) {
+		tweetBtn.classList.add('active');
+		const newPostHtml = createHtml(data.newRetweet);
+		postContainer.insertAdjacentHTML('afterbegin', newPostHtml);
+	} else {
+		tweetBtn.classList.remove('active'); 
+	}
 }
