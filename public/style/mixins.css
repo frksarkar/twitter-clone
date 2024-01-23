@@ -90,14 +90,20 @@
 }
 
 .post-btn-container.red button.active {
-	color: red;
+	color: var(--red);
 	i {
-		color: red;
+		color: var(--red);
 	}
 }
 .post-btn-container.green button.active {
-	color: green;
+	color: var(--green);
 	i {
-		color: green;
+		color: var(--green);
 	}
+}
+
+.re-post-container {
+	padding-top: 5px;
+	padding-left: 3rem;
+	font-size: 0.9rem;
 }
