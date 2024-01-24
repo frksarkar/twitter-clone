@@ -1,11 +1,23 @@
 link(rel="stylesheet", href="/style/mixins.css")
 
 
-mixin postCreate()
+mixin postCreate(btn)
     .postMainContainer
         .imgContainer 
             img(src="https://i.pravatar.cc/300", alt="User's profile picture", srcset="")
         .textareaContainer 
             textarea#postbox(placeholder="What's happening?")
-            .buttonContainer
-                button#submitPostBtn(disabled) Post
+            if btn
+                .buttonContainer
+                    button#submitPostBtn(disabled) Post
+
+mixin popupWindow()
+    .popup-container
+        .popup-title
+            h4 Reply
+            button.btn-close-popup 
+                i.fa-solid.fa-xmark
+        +postCreate()
+        .popup-button-container
+            button.btn-close-popup Close
+            button#replay-btn(type="submit") Reply

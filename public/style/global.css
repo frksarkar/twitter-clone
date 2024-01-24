@@ -22,6 +22,12 @@
 	font-family: 'Poppins', sans-serif;
 }
 
+button {
+	border: none;
+	cursor: pointer;
+	background: transparent;
+}
+
 img {
 	width: 100%;
 }

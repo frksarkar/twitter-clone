@@ -1,4 +1,5 @@
 const likeBtn = document.querySelector('.like-btn');
+const dialogBox = document.querySelector('.popup-container');
 
 document.addEventListener('DOMContentLoaded', async () => {
 	const getAllGet = await fetch('/api/posts', {
@@ -22,16 +23,26 @@ document.addEventListener('click', (event) => {
 	const likeBtn = event.target.closest('.like-btn');
 	const tweetBtn = event.target.closest('.tweet-btn');
 	const postContainer = event.target.closest('.post');
+	const dialogBoxCloseBtn = event.target.closest('.btn-close-popup');
+
 	const elementId = postContainer
 		? event.target.closest('.post').dataset.id
 		: null;
-
+	dialogBoxCloseBtn ? dialogBoxClose() : null;
 	if (likeBtn) {
 		pressLikeBtn(likeBtn, elementId);
 	} else if (tweetBtn) {
 		pressTweetBtn(tweetBtn, elementId);
 	}
 });
+
+function dialogBoxClose() {
+	dialogBox.style.transform = 'translate(135px, -500px)';
+
+	setTimeout(() => {
+		dialogBox.style.display = 'none';
+	}, 300);
+}
 
 async function pressLikeBtn(likeBtn, elementId) {
 	const result = await fetch(`/api/posts/${elementId}/like`, {
@@ -63,6 +74,6 @@ async function pressTweetBtn(tweetBtn, elementId) {
 		const newPostHtml = createHtml(data.newRetweet);
 		postContainer.insertAdjacentHTML('afterbegin', newPostHtml);
 	} else {
-		tweetBtn.classList.remove('active'); 
+		tweetBtn.classList.remove('active');
 	}
 }
