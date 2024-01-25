@@ -1,5 +1,7 @@
 const likeBtn = document.querySelector('.like-btn');
 const dialogBox = document.querySelector('.popup-container');
+const dialogBoxTextArea = dialogBox.querySelector('#postbox');
+const dialogBoxSubmitBtn = dialogBox.querySelector('button[type=submit]');
 
 document.addEventListener('DOMContentLoaded', async () => {
 	const getAllGet = await fetch('/api/posts', {
@@ -36,7 +38,20 @@ document.addEventListener('click', (event) => {
 	}
 });
 
+dialogBoxTextArea.addEventListener('keyup', function handleInput(event) {
+	// Trim the input value
+	postValue = event.target.value.trim();
+	// If the trimmed value is not empty, enable the submit button
+	if (postValue) {
+		dialogBoxSubmitBtn.disabled = false;
+		return;
+	}
+	// If the trimmed value is empty, disable the submit button
+	dialogBoxSubmitBtn.disabled = true;
+});
+
 function dialogBoxClose() {
+	dialogBox.style.transition = 'transform 0.3s';
 	dialogBox.style.transform = 'translate(135px, -500px)';
 
 	setTimeout(() => {

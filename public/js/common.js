@@ -5,14 +5,7 @@ const postContainer = document.querySelector('.main-post-container');
 let postValue;
 
 // if typing then enable post button
-textBox.addEventListener('keyup', (event) => {
-	postValue = event.target.value.trim();
-	if (postValue) {
-		submitBtm.disabled = false;
-		return;
-	}
-	submitBtm.disabled = true;
-});
+textBox.addEventListener('keyup', handleInput);
 
 // create new post element btn
 submitBtm.addEventListener('click', async (event) => {
@@ -146,4 +139,18 @@ function timeDifference(current, previous) {
 	} else {
 		return Math.round(elapsed / msPerYear) + ' years ago';
 	}
+}
+
+// This function handles the input event
+// It trims the input value and enables/disables the submit button accordingly
+function handleInput(event) {
+	// Trim the input value
+	postValue = event.target.value.trim();
+	// If the trimmed value is not empty, enable the submit button
+	if (postValue) {
+		submitBtm.disabled = false;
+		return;
+	}
+	// If the trimmed value is empty, disable the submit button
+	submitBtm.disabled = true;
 }

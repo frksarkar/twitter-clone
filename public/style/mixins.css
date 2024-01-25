@@ -146,7 +146,11 @@
 			}
 		}
 		#replay-btn {
-			background-color: var(--blue-light);
+			background-color: var(--blue);
+			&:disabled {
+				background-color: var(--blue-light);
+				cursor: inherit;
+			}
 		}
 	}
 	.postMainContainer {
