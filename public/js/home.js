@@ -2,6 +2,9 @@ const likeBtn = document.querySelector('.like-btn');
 const dialogBox = document.querySelector('.popup-container');
 const dialogBoxTextArea = dialogBox.querySelector('#postbox');
 const dialogBoxSubmitBtn = dialogBox.querySelector('button[type=submit]');
+const deleteBox = document.querySelector('.delete-popup-container');
+const deletePostBtn = deleteBox.querySelector('#delete-post-btn');
+let postId;
 
 // Wait for the DOM content to be fully loaded before executing the following code
 document.addEventListener('DOMContentLoaded', async () => {
@@ -30,10 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	postContainer.insertAdjacentHTML('afterbegin', newPostHtml);
 });
 
-/**
- * Add event listener for document click event
- * @param {Object} event - The event object
- */
+//  Add event listener for document click event
 document.addEventListener('click', (event) => {
 	// Find the closest like button
 	const likeBtn = event.target.closest('.like-btn');
@@ -43,6 +43,8 @@ document.addEventListener('click', (event) => {
 	const replayBtn = event.target.closest('.comment-btn');
 	// Find the closest post container
 	const postContainer = event.target.closest('.post');
+	// Find the closest post container
+	const deletePost = event.target.closest('.delete-btn');
 	// Find the closest dialog box close button
 	const dialogBoxCloseBtn = event.target.closest('.btn-close-popup');
 
@@ -51,8 +53,19 @@ document.addEventListener('click', (event) => {
 		? event.target.closest('.post').dataset.id
 		: null;
 
+	// if elementId is exist then stor the value postId variable
+	if (elementId) {
+		postId = elementId;
+	}
+
+	if (deletePost) {
+		document.querySelector('.overlay').classList.add('active');
+		deleteBox.classList.add('active');
+		deletePostBtn.disabled = false;
+	}
+
 	// If replay button is clicked, call pressReplayBtn function
-	replayBtn ? pressReplayBtn(replayBtn, elementId) : null;
+	replayBtn ? pressReplayBtn(elementId) : null;
 
 	// Close dialog box if close button is clicked
 	dialogBoxCloseBtn ? dialogBoxClose() : null;
@@ -65,6 +78,13 @@ document.addEventListener('click', (event) => {
 	else if (tweetBtn) {
 		pressTweetBtn(tweetBtn, elementId);
 	}
+});
+
+deletePostBtn.addEventListener('click', async () => {
+	if (!postId) return console.log('post id is required');
+	const response = await postDeleteReq(postId);
+	showToast('You are delete this post', 2000);
+	location.reload();
 });
 
 // Add event listener for keyup event on dialogBoxTextArea
@@ -80,24 +100,28 @@ dialogBoxTextArea.addEventListener('keyup', function handleInput(event) {
 	dialogBoxSubmitBtn.disabled = true;
 });
 
+/**
+ * Closes the dialog box, removes the 'active' class from dialogBox and deleteBox,
+ * removes the 'active' class from the overlay, and removes the .post element from dialogBox.
+ */
 function dialogBoxClose() {
 	dialogBox.classList.remove('active');
-	dialogBox.querySelector('.post').remove();
+	deleteBox.classList.remove('active');
 	document.querySelector('.overlay').classList.remove('active');
+	dialogBox.querySelector('.post')
+		? dialogBox.querySelector('.post').remove()
+		: null;
 }
 
-dialogBoxSubmitBtn.addEventListener('click', (event) => {
+dialogBoxSubmitBtn.addEventListener('click', () => {
 	const formData = new FormData();
-	// formData.append('id', postId);
-	// formData.append('content', dialogBoxTextArea.value);
-	const postId = event.target.closest('.post')
-	console.log("🚀 ~ dialogBoxSubmitBtn.addEventListener ~ postId:", postId)
+	formData.append('replayTo', postId);
+	formData.append('content', dialogBoxTextArea.value);
+	replayToPost(formData);
 });
 
-/**
- * Closes the dialog box and removes the 'active' class, and also removes the
- * post element from the dialog box.
- */
+// Closes the dialog box and removes the 'active' class, and also removes the
+// post element from the dialog box.
 async function pressLikeBtn(likeBtn, elementId) {
 	const result = await fetch(`/api/posts/${elementId}/like`, {
 		method: 'PUT',
@@ -114,15 +138,9 @@ async function pressLikeBtn(likeBtn, elementId) {
 	}
 }
 
-/**
- * Asynchronously presses the tweet button for a given element ID, updating the UI
- * with the retweet count and adding or removing the 'active' class based on user
- * interaction.
- *
- * @param {HTMLElement} tweetBtn - the tweet button element
- * @param {string} elementId - the ID of the element to be tweeted
- * @return {void}
- */
+//  Asynchronously presses the tweet button for a given element ID, updating the UI
+//  with the retweet count and adding or removing the 'active' class based on user
+//  interaction.
 async function pressTweetBtn(tweetBtn, elementId) {
 	const result = await fetch(`/api/posts/${elementId}/tweet`, {
 		method: 'POST',
@@ -141,31 +159,22 @@ async function pressTweetBtn(tweetBtn, elementId) {
 	}
 }
 
-/**
- * Asynchronously presses the replay button for a given element and post ID.
- *
- * @param {Element} element - The element to which the replay button is attached
- * @param {string} postId - The ID of the post to be replayed
- * @return {Promise<void>} A promise that resolves when the replay is completed
- */
-async function pressReplayBtn(element, postId) {
+// Asynchronously presses the replay button for a given post ID.
+async function pressReplayBtn(postId) {
 	if (!postId) {
 		console.log('post id is required');
 	}
 	document.querySelector('.overlay').classList.add('active');
 	dialogBox.classList.add('active');
 	const data = await getPost(postId);
-	const postHtml = createHtml(data);
-	const textArea = dialogBox.querySelector('.postMainContainer');
-	textArea.insertAdjacentHTML('beforebegin', postHtml);
+	setTimeout(() => {
+		const postHtml = createHtml(data);
+		const textArea = dialogBox.querySelector('.postMainContainer');
+		textArea.insertAdjacentHTML('beforebegin', postHtml);
+	}, 500);
 }
 
-/**
- * Asynchronously retrieves the post data for the given post ID.
- *
- * @param {number} postId - The ID of the post to retrieve
- * @return {Promise} A Promise that resolves to the JSON data of the post
- */
+// Asynchronously retrieves the post data for the given post ID.
 async function getPost(postId) {
 	const postData = await fetch('/api/posts/' + postId, {
 		method: 'GET',
@@ -174,7 +183,7 @@ async function getPost(postId) {
 	return postData.json();
 }
 
-async function replayToPost(postId) {
+async function replayToPost(formData) {
 	try {
 		const request = await fetch('/api/posts', {
 			method: 'POST',
@@ -184,8 +193,18 @@ async function replayToPost(postId) {
 			},
 		});
 		const newPostData = await request.json();
+		showToast('You are replay this post', 2000);
 		console.log('🚀 ~ replayToPost ~ newPostData:', newPostData);
 	} catch (error) {
 		console.log('🚀 ~ replayToPost ~ error:', error);
 	}
+}
+
+// Sends a DELETE request to the server to delete a post with the given postId.
+async function postDeleteReq(postId) {
+	const request = await fetch('/api/posts/' + postId, {
+		method: 'DELETE',
+	});
+
+	return request.json();
 }
