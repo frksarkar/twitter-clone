@@ -49,6 +49,11 @@ function createHtml(postData) {
 	let retweetBy = '';
 	let retweetText = '';
 	let retweetTimestamp = '';
+	let postAction = '';
+	if (postData.postedBy._id === user._id) {
+		postAction = `<button class='pin-btn'> <i class="fa-solid fa-thumbtack"></i> </button>
+		<button class='delete-btn'> <i class="fa-solid fa-xmark"></i> </button>`;
+	}
 	if (retweetData) {
 		retweetBy = postData.postedBy.userName;
 		retweetText = `<i class="fa-solid fa-retweet"></i> <span>retweeted by <a href='/profile/${retweetBy}'>@${retweetBy}</a></span>`;
@@ -70,7 +75,7 @@ function createHtml(postData) {
 
 	return `<div class="post" data-id='${postData._id}'>
 				<div class='post-container'>
-					<div class='re-post-container'> 
+					<div class='retweet-container'> 
 						${retweetText} ${retweetTimestamp}
 					</div>
 					<div class='post-content'>
@@ -83,9 +88,14 @@ function createHtml(postData) {
 						</div>
 						<div class="post-body">
 							<div class="post-header">
-								<span>${userData?.userName}</span>
-								<span>@${userData?.userName}</span>
-								<span>${timestamp}</span>
+								<div class='post-header-info'>
+									<span><a href='/profile/${userData?.userName}'>${userData?.userName}</a></span>
+									<span><a href='/profile/${userData?.userName}'>@${userData?.userName}</a></span>
+									<span>${timestamp}</span>
+								</div>
+								<div class='post-header-action'>
+									${postAction}
+								</div>
 							</div>
 							<div class="postBody">
 								<p>${postData?.content}</p>
@@ -153,4 +163,19 @@ function handleInput(event) {
 	}
 	// If the trimmed value is empty, disable the submit button
 	submitBtm.disabled = true;
+}
+
+function showToast(message, duration = 3000) {
+	const toastContainer = document.getElementById('toast-container');
+
+	// Update toast content
+	toastContainer.textContent = message;
+
+	// Show toast
+	toastContainer.style.display = 'block';
+
+	// Hide toast after a specified duration
+	setTimeout(() => {
+		toastContainer.style.display = 'none';
+	}, duration);
 }
