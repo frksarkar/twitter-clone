@@ -49,87 +49,101 @@
 	flex-direction: column;
 	padding: var(--spacing);
 	border-bottom: 1px solid var(--extra-light-gray);
+
+	.retweet-container {
+		padding-left: 2rem;
+		font-size: 0.8rem;
+		color: var(--dark-gray);
+	}
+
 	.post-content {
 		display: flex;
 		gap: 1rem;
-	}
-	.re-post-container {
-		padding-left: 2rem;
-		font-size: 0.8rem;
-	}
-}
 
-.post-body {
-	flex-grow: 1;
-}
+		.post-body {
+			flex-grow: 1;
 
-.post-body span {
-	padding-right: 3px;
-	&:first-child {
-		font-weight: 600;
-	}
-}
+			.post-header {
+				display: flex;
+				justify-content: space-between;
+				i {
+					padding-left: 8px;
+				}
+			}
 
-.postFooter {
-	display: flex;
-	align-items: center;
-}
-.post-btn-container {
-	flex-grow: 1;
-	display: flex;
-	width: 100%;
-}
+			span {
+				padding-right: 3px;
+				&:first-child {
+					font-weight: 600;
+				}
+			}
+		}
+		.postFooter {
+			display: flex;
+			align-items: center;
 
-.post-btn-container button {
-	border: none;
-	background-color: transparent;
-	cursor: pointer;
-	padding: 5px;
-	border-radius: 50%;
-	line-height: 5px;
-	transition: all 0.3s ease;
-	i {
-		font-size: 1rem;
-		color: var(--dark-gray);
-		z-index: -1;
-	}
-	&:hover {
-		background-color: var(--blue-light);
-	}
-}
-
-.post-btn-container.red button.active {
-	color: var(--red);
-	i {
-		color: var(--red);
-	}
-}
-.post-btn-container.green button.active {
-	color: var(--green);
-	i {
-		color: var(--green);
+			.post-btn-container {
+				flex-grow: 1;
+				display: flex;
+				width: 100%;
+				button {
+					border: none;
+					background-color: transparent;
+					cursor: pointer;
+					padding: 5px;
+					border-radius: 50%;
+					line-height: 5px;
+					transition: all 0.3s ease;
+					&:hover {
+						background-color: var(--blue-light);
+					}
+				}
+				&.red button.active {
+					color: var(--red);
+					i {
+						color: var(--red);
+					}
+				}
+				&.green button.active {
+					color: var(--green);
+					i {
+						color: var(--green);
+					}
+				}
+			}
+		}
 	}
 }
 /* home page post container */
 
 /* popup window */
-.popup-container {
+.popup-container,
+.delete-popup-container {
+	width: 30%;
 	position: fixed;
 	background-color: white;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	width: 30%;
-	/* border: 1px solid red; */
 	border-radius: 5px;
 	box-shadow: 0 0 15px 0 #8080804a;
-	/* transform: translate(135px, -500px); */
-	transition: all 0.3s ease;
-	/* display: none; */
+	transform: translate(135px, -500px);
+	transition: all 0.5s ease;
+	pointer-events: none;
+	z-index: 2;
 	.popup-title {
 		display: flex;
 		justify-content: space-between;
 		padding: 1rem;
+	}
+	& > p {
+		padding: 1rem;
+		border: 1px solid var(--extra-light-gray);
+	}
+	&.active {
+		transition: all 0.5s ease;
+		pointer-events: inherit;
+		transform: translate(135px, 10px);
 	}
 	.popup-button-container {
 		display: flex;
@@ -156,5 +170,9 @@
 	.postMainContainer {
 		border-bottom: 1px solid var(--extra-light-gray);
 		border-top: 1px solid var(--extra-light-gray);
+	}
+	.post-container {
+		border-top: 1px solid var(--extra-light-gray);
+		border-bottom: initial;
 	}
 }
