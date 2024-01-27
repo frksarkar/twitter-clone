@@ -28,6 +28,15 @@ button {
 	background: transparent;
 }
 
+i {
+	color: var(--dark-gray);
+	font-size: 1rem;
+}
+
+a {
+	color: var(--black);
+}
+
 img {
 	width: 100%;
 }
