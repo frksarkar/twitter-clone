@@ -3,7 +3,7 @@ const { User } = require('../module/userSchema');
 const { throwError } = require('../util/helper');
 
 exports.createPost = async function (req, res, next) {
-	const { content } = req.body;
+	const { content, replayTo } = req.body;
 	const user = req.session.user;
 	try {
 		if (!(req.session && req.session.user)) {
@@ -12,7 +12,11 @@ exports.createPost = async function (req, res, next) {
 		if (!content) {
 			throwError('you must provide a content', 400);
 		}
-		const newPost = await Post.create({ content, postedBy: user._id });
+		const newPost = await Post.create({
+			content,
+			postedBy: user._id,
+			replayTo,
+		});
 
 		await newPost.populate({ path: 'postedBy', select: '-password' });
 
@@ -26,8 +30,24 @@ exports.createPost = async function (req, res, next) {
 	}
 };
 
-exports.getAllPosts = async function (req, res) {
+exports.getAllPosts = async function (req, res, next) {
 	const allPosts = await Post.find()
+		.sort({ createdAt: -1 })
+		.populate({
+			path: 'postedBy',
+			select: '-password',
+		})
+		.populate({
+			path: 'retweetData',
+			populate: 'postedBy',
+		});
+
+	res.status(200).json(allPosts);
+};
+
+exports.getPost = async function (req, res, next) {
+	const postId = req.params.id;
+	const allPosts = await Post.findById({ _id: postId })
 		.sort({ createdAt: -1 })
 		.populate({
 			path: 'postedBy',
@@ -128,5 +148,24 @@ exports.retweetPost = async (req, res, next) => {
 		});
 	} catch (error) {
 		next(error);
+	}
+};
+
+exports.deletePost = async (req, res, next) => {
+	const postId = req.params.id;
+	const userId = req.session.user._id;
+	try {
+		const deletePost = await Post.findOneAndDelete({
+			_id: postId,
+			postedBy: userId,
+		});
+
+		res.status(200).json({
+			status: 'success',
+			message: 'deleted successfully',
+			data: deletePost,
+		});
+	} catch (err) {
+		next(err);
 	}
 };
