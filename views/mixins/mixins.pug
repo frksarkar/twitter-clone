@@ -21,3 +21,14 @@ mixin popupWindow()
         .popup-button-container
             button.btn-close-popup Close
             button#replay-btn(type="submit", disabled) Reply
+
+mixin deletePopupWindow()
+    .delete-popup-container
+        .popup-title
+            h4 Delete Post
+            button.btn-close-popup 
+                i.fa-solid.fa-xmark
+        p Are you sure you want to delete this post?
+        .popup-button-container
+            button.btn-close-popup Close
+            button#delete-post-btn(type="submit", disabled) Delete
