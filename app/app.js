@@ -3,6 +3,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const morgan = require('morgan');
 
 const { loginRouter } = require('../routers/loginRouter');
 const { registerRouter } = require('../routers/registerRouter');
@@ -10,7 +11,9 @@ const { errorHandler } = require('../middleware/errorHandler');
 const { postRouter } = require('../routers/postRouter');
 const { isLogin } = require('../middleware/authHandler');
 const { homeRouter } = require('../routers/homeRouter');
-const morgan = require('morgan');
+const { profileRouter } = require('../routers/profileRouter');
+const { testController } = require('../controller/testController');
+const { logoutRouter } = require('../routers/logoutRouter');
 
 const app = express();
 
@@ -32,8 +35,10 @@ app.use(
 // routers
 app.use('/api/posts', postRouter);
 app.use('/login', loginRouter);
+app.use('/logout', isLogin, logoutRouter)
 app.use('/register', registerRouter);
 app.use('/', isLogin, homeRouter);
+app.use('/profile', profileRouter);
 
 //todo: not found router
 
