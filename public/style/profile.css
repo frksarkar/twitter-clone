@@ -1,0 +1,84 @@
+.profile-cover {
+	height: 250px;
+	background-color: var(--blue);
+	position: relative;
+	> img {
+		height: 100%;
+	}
+
+	.profile-avatar {
+		width: 132px;
+		height: 132px;
+		border-radius: 50%;
+		overflow: hidden;
+		position: absolute;
+		border: 5px solid #fff;
+		transform: translate(0, -55%);
+		margin: 0 var(--spacing);
+	}
+}
+
+.profile-button-container {
+	display: flex;
+	gap: var(--spacing);
+	justify-content: flex-end;
+	padding: var(--spacing);
+	height: 4rem;
+	> * {
+		font-size: 1.1rem;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-weight: 500;
+		color: var(--blue) !important;
+		border: 1px solid var(--blue);
+		padding: 5px var(--spacing);
+		border-radius: 50px;
+		i {
+			color: var(--blue);
+			padding: 5px 0;
+		}
+		&:hover {
+			background: var(--blue-extra-light);
+		}
+		&.following:not(a) {
+			background-color: var(--blue);
+			color: #fff !important;
+		}
+	}
+}
+
+.profile-info {
+	display: flex;
+	flex-direction: column;
+	padding: 0 var(--spacing);
+}
+
+.tab-container {
+	display: flex;
+	height: 3rem;
+	font-size: 20px;
+	border-bottom: 1px solid var(--extra-light-gray);
+	& * {
+		flex: 1;
+		display: flex;
+		font-size: 1rem;
+		font-weight: 700;
+		justify-content: center;
+		align-items: center;
+		&.active {
+			border-bottom: 2px solid var(--blue);
+		}
+	}
+}
+
+.follower-container {
+	display: flex;
+	gap: var(--spacing);
+	span {
+		padding-right: 3px;
+		&:first-child {
+			font-weight: bold;
+		}
+	}
+}
