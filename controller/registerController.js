@@ -13,10 +13,10 @@ exports.postRegisterForm = async function (req, res, next) {
 		}
 
 		const existAccount = await User.findOne({ email });
-		if (!existAccount) {
+		if (existAccount) {
 			throwError('account already exists', 400);
 		}
-		
+
 		const newUser = await User.create({ userName, email, password });
 		if (!newUser) {
 			throwError('account creation failed', 500);
