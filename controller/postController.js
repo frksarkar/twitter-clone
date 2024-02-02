@@ -31,7 +31,18 @@ exports.createPost = async function (req, res, next) {
 };
 
 exports.getAllPosts = async function (req, res, next) {
-	const allPosts = await Post.find()
+	const query = req.query;
+	const searchObj = {};
+	if (query.postedBy && query.isReply == 'false') {
+		searchObj.postedBy = query.postedBy;
+		searchObj.replayTo = { $exists: false };
+	}
+	if (query.postedBy && query.isReply == 'true') {
+		searchObj.postedBy = query.postedBy;
+		searchObj.replayTo = { $exists: true };
+	}
+
+	const allPosts = await Post.find(searchObj)
 		.sort({ createdAt: -1 })
 		.populate({
 			path: 'postedBy',
