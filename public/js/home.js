@@ -33,6 +33,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 	postContainer.insertAdjacentHTML('afterbegin', newPostHtml);
 });
 
+// if typing then enable post button
+textBox.addEventListener('keyup', handleInput);
+
 //  Add event listener for document click event
 document.addEventListener('click', (event) => {
 	// Find the closest like button
@@ -47,6 +50,8 @@ document.addEventListener('click', (event) => {
 	const deletePost = event.target.closest('.delete-btn');
 	// Find the closest dialog box close button
 	const dialogBoxCloseBtn = event.target.closest('.btn-close-popup');
+	// find the follow button
+	const followBtn = event.target.closest('.followBtn');
 
 	// Get the id of the post container, if it exists
 	const elementId = postContainer
@@ -63,6 +68,8 @@ document.addEventListener('click', (event) => {
 		deleteBox.classList.add('active');
 		deletePostBtn.disabled = false;
 	}
+
+	followBtn ? follow(followBtn) : null;
 
 	// If replay button is clicked, call pressReplayBtn function
 	replayBtn ? pressReplayBtn(elementId) : null;
@@ -174,6 +181,42 @@ async function pressReplayBtn(postId) {
 	}, 500);
 }
 
+// create new post element btn
+submitBtm.addEventListener('click', async (event) => {
+	const formData = new FormData();
+	formData.append('content', postValue);
+	try {
+		const request = await fetch('/api/posts', {
+			method: 'POST',
+			body: new URLSearchParams(formData).toString(),
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+		});
+		const newPostData = await request.json();
+
+		if (newPostData.status === 'failed') {
+			console.log('can not post');
+			return;
+		}
+
+		textBox.value = '';
+		submitBtm.disabled = true;
+
+		// create a new post html element
+		const newPostHtml = createHtml(newPostData.data);
+		postContainer.insertAdjacentHTML('afterbegin', newPostHtml);
+
+		// the new post place then delete the empty box
+		const postBox = postContainer.querySelector('.empty');
+		if (postBox && postBox.classList.contains('empty')) {
+			postBox.remove();
+		}
+	} catch (error) {
+		console.log('🚀 ~ submitBtm.addEventListener ~ error:', error);
+	}
+});
+
 // Asynchronously retrieves the post data for the given post ID.
 async function getPost(postId) {
 	const postData = await fetch('/api/posts/' + postId, {
@@ -207,4 +250,11 @@ async function postDeleteReq(postId) {
 	});
 
 	return request.json();
+}
+
+async function follow(btn) {
+	const userId = btn.dataset.userid;
+	const request = await fetch(`/users/${userId}/follow`, {
+		method: 'PUT',
+	});
 }

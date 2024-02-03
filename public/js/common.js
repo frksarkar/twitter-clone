@@ -1,47 +1,7 @@
 const submitBtm = document.querySelector('#submitPostBtn');
 const textBox = document.querySelector('#postbox');
 const postContainer = document.querySelector('.main-post-container');
-
 let postValue;
-
-// if typing then enable post button
-textBox.addEventListener('keyup', handleInput);
-
-// create new post element btn
-submitBtm.addEventListener('click', async (event) => {
-	const formData = new FormData();
-	formData.append('content', postValue);
-	try {
-		const request = await fetch('/api/posts', {
-			method: 'POST',
-			body: new URLSearchParams(formData).toString(),
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			},
-		});
-		const newPostData = await request.json();
-
-		if (newPostData.status === 'failed') {
-			console.log('can not post');
-			return;
-		}
-
-		textBox.value = '';
-		submitBtm.disabled = true;
-
-		// create a new post html element
-		const newPostHtml = createHtml(newPostData.data);
-		postContainer.insertAdjacentHTML('afterbegin', newPostHtml);
-
-		// the new post place then delete the empty box
-		const postBox = postContainer.querySelector('.empty');
-		if (postBox && postBox.classList.contains('empty')) {
-			postBox.remove();
-		}
-	} catch (error) {
-		console.log('🚀 ~ submitBtm.addEventListener ~ error:', error);
-	}
-});
 
 // create a new html element
 function createHtml(postData) {
@@ -50,7 +10,7 @@ function createHtml(postData) {
 	let retweetText = '';
 	let retweetTimestamp = '';
 	let postAction = '';
-	if (postData.postedBy._id === user._id) {
+	if (postData.postedBy?._id === user._id) {
 		postAction = `<button class='pin-btn'> <i class="fa-solid fa-thumbtack"></i> </button>
 		<button class='delete-btn'> <i class="fa-solid fa-xmark"></i> </button>`;
 	}
@@ -72,6 +32,9 @@ function createHtml(postData) {
 		? 'active'
 		: '';
 	const timestamp = timeDifference(Date.now(), new Date(postData.createdAt));
+	const avatar = postData.postedBy?.profilePicture
+		? postData.postedBy?.profilePicture
+		: 'https://i.pravatar.cc/200';
 
 	return `<div class="post" data-id='${postData._id}'>
 				<div class='post-container'>
@@ -81,7 +44,7 @@ function createHtml(postData) {
 					<div class='post-content'>
 						<div class="imgContainer">
 							<img
-								src="https://i.pravatar.cc/300"
+								src='${avatar}'
 								alt="User's profile picture"
 								srcset=""
 							/>
@@ -165,6 +128,7 @@ function handleInput(event) {
 	submitBtm.disabled = true;
 }
 
+// Displays a toast message for a specified duration.
 function showToast(message, duration = 3000) {
 	const toastContainer = document.getElementById('toast-container');
 
