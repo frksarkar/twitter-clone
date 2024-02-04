@@ -257,4 +257,17 @@ async function follow(btn) {
 	const request = await fetch(`/users/${userId}/follow`, {
 		method: 'PUT',
 	});
+
+	const result = await request.json();
+	const followCount = document.querySelector('.followers-count');
+
+	if (result.action === 'Follow') {
+		btn.innerText = 'Follow';
+		btn.classList.remove('following');
+		followCount.innerText = parseInt(followCount.innerText) - 1;
+	} else {
+		btn.innerText = 'Following';
+		btn.classList.add('following');
+		followCount.innerText = parseInt(followCount.innerText) + 1;
+	}
 }

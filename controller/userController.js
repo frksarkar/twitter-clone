@@ -19,7 +19,36 @@ exports.getFollowerAndFollowing = async function (req, res, next) {
 
 exports.getFollow = async function (req, res, next) {
 	const userId = req.params.userId;
-	const loginUser = req.session.user._id;
+	const loginUser = req.session.user;
 
-	const user = await User.findByIdAndUpdate(userId, {$addToSet: {followers}})
+	if (!(loginUser && userId)) {
+		throwError('You must provide a id and loginUser id', 400);
+	}
+	const follow = loginUser?.following && loginUser.following.includes(userId);
+
+	const method = follow ? '$pull' : '$addToSet';
+	req.session.user = await User.findByIdAndUpdate(
+		loginUser._id,
+		{
+			[method]: { following: userId },
+		},
+		{ new: true }
+	);
+
+	const newFollowers = await User.findByIdAndUpdate(
+		userId,
+		{
+			[method]: { followers: loginUser._id },
+		},
+		{ new: true }
+	);
+	
+	const action = follow ? 'Follow' : 'Following';
+
+	res.status(200).json({
+		status: 'success',
+		message: 'updated successfully',
+		data: newFollowers,
+		action,
+	});
 };
