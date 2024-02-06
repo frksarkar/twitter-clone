@@ -1,4 +1,8 @@
 const homePostContainer = document.querySelector('.post');
+const uploadedFile = document.querySelector('#upload-profile-picture');
+const image = document.getElementById('uploadImagePreview');
+
+let cropper;
 
 // Wait for the DOM content to be fully loaded before executing the following code
 document.addEventListener('DOMContentLoaded', async () => {
@@ -14,7 +18,46 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 document.addEventListener('click', (event) => {
-	console.log(event.target.closest('.replies'));
+	// find profile upload button
+	const profilePicUploadBtn = event.target.closest('.profile-pic-btn');
+
+	// find close picture upload popup button
+	const profilePicUploadContainerCloseBtn =
+		event.target.closest('.btn-close-popup');
+
+	// find save profile picture
+	const saveProfilePictureBtn = event.target.closest('#save-picture-btn');
+
+	// get user id
+	const userId = profilePicUploadBtn?.dataset.userid;
+
+	// show profile pic upload container
+	profilePicUploadBtn && userId ? toggleUploadPopup(userId) : null;
+
+	// close profile pic upload container
+	profilePicUploadContainerCloseBtn
+		? toggleUploadPopup('close', event)
+		: null;
+
+	// Send the file to the server.
+	saveProfilePictureBtn
+		? sendProfilePicToServer(user._id, cropper, event)
+		: null;
+});
+
+uploadedFile.addEventListener('change', (event) => {
+	const reader = new FileReader();
+	console.log('upload file');
+	reader.onload = function (e) {
+		image.src = e.target.result;
+		image.parentElement.style.display = 'block';
+		cropper?.destroy();
+		cropper = new Cropper(image, { aspectRatio: 1 / 1 });
+		// cover image ratio
+		// cropper = new Cropper(image, { aspectRatio: 121 / 36 });
+	};
+
+	reader.readAsDataURL(event.target.files[0]);
 });
 
 function injectPostInHtml(posts) {
@@ -37,7 +80,7 @@ function injectPostInHtml(posts) {
 
 async function loadPosts(data) {
 	// Send a GET request to the '/api/posts' endpoint and wait for the response
-	const getAllGet = await fetch(
+	const getAllPosts = await fetch(
 		`/api/posts?postedBy=${data.userId}&isReply=${data.isReply}`,
 		{
 			method: 'GET',
@@ -45,5 +88,43 @@ async function loadPosts(data) {
 	);
 
 	// Parse the response as JSON
-	return getAllGet.json();
+	return getAllPosts.json();
+}
+
+function toggleUploadPopup(data, event) {
+	// get the picture upload container
+	const profilePicUploaderContainer = document.querySelector(
+		'.upload-profile-pic-container'
+	);
+	const overlayScreen = document.querySelector('.overlay');
+
+	// close the popup container
+	if (data === 'close') {
+		profilePicUploaderContainer.classList.remove('active');
+		image.src = '';
+		uploadedFile.value = '';
+		cropper?.destroy();
+		document.querySelector('.preview-picture').style.display = 'none';
+		// remove screen overlay
+		overlayScreen.classList.remove('active');
+		return;
+	}
+
+	overlayScreen.classList.add('active');
+	// open the container
+	profilePicUploaderContainer.classList.add('active');
+}
+
+// save the profile picture to the server
+function sendProfilePicToServer(userId, image, btn) {
+	const form = new FormData();
+
+	cropper.getCroppedCanvas().toBlob((blob) => {
+		form.append('profileImage', blob);
+
+		fetch(`/users/update/${userId}/image`, {
+			method: 'PUT',
+			body: form,
+		});
+	});
 }
