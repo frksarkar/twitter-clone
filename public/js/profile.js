@@ -128,3 +128,24 @@ function sendProfilePicToServer(userId, image, btn) {
 		});
 	});
 }
+
+
+// Add event listener for mouseover on profile avatar
+document
+	.querySelector('.profile-avatar')
+	.addEventListener('mouseover', function (event) {
+		// Remove class
+		document
+			.querySelector('.profile-cover')
+			.classList.remove('profile-cover-image');
+	});
+
+// Add event listener for mouseout on profile avatar
+document
+	.querySelector('.profile-avatar')
+	.addEventListener('mouseout', function (event) {
+		// Add class
+		document
+			.querySelector('.profile-cover')
+			.classList.add('profile-cover-image');
+	});
