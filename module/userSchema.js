@@ -13,6 +13,11 @@ const userSchema = new Schema(
 			required: true,
 			default: 'https://i.pravatar.cc/300',
 		},
+		coverPicture: {
+			type: String,
+			required: true,
+			default: 'https://i.pravatar.cc/300',
+		},
 		likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 		retweet: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
 		followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],

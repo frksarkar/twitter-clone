@@ -1,4 +1,5 @@
 const { User } = require('../module/userSchema');
+const { uploadImage } = require('../util/uploadImage');
 
 exports.getFollowerAndFollowing = async function (req, res, next) {
 	const userId = req.params.userId;
@@ -42,7 +43,7 @@ exports.getFollow = async function (req, res, next) {
 		},
 		{ new: true }
 	);
-	
+
 	const action = follow ? 'Follow' : 'Following';
 
 	res.status(200).json({
@@ -51,4 +52,22 @@ exports.getFollow = async function (req, res, next) {
 		data: newFollowers,
 		action,
 	});
+};
+
+exports.profilePicUpdate = async function (req, res, next) {
+	const userId = req.params.userId;
+	try {
+		let imageName = Date().split(' ');
+		imageName.length = 5;
+		imageName = imageName.join('-');
+		imageName = imageName + '-' + userId;
+
+		const imageUrl = await uploadImage(req.file.buffer, imageName);
+
+		req.session.user = await User.findByIdAndUpdate(userId, { profilePicture: imageUrl });
+
+		res.status(204);
+	} catch (err) {
+		console.log('🚀 ~ file: userController.js:62 ~ l:', err);
+	}
 };
