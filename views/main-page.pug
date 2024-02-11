@@ -1,25 +1,26 @@
 extends layout/header.pug
 
-block header
+block append header
     link(rel="stylesheet", href="/style/main-page.css")
+
 block body 
     script. 
-        //- console.log('hello world')
-        const user = !{user}
+        const user = !{loginUserJs}
 
     .container 
         .row 
             .colum.colum-nav 
+                - const userName = loginUser.userName
                 include nav.pug
             .colum.colum-body 
                 .main-body-title.spacer
-                    h3 Home page
-                include home.pug
+                    h3 #{pageTitle}
+                block mainBody
             .colum.colum-side-bar 
                 h2 side bar 
     #toast-container
     .overlay
-        
+
     script(src="/js/common.js") 
     block script
-    
+
