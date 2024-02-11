@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	// Insert the new post HTML at the beginning of the post container
-	postContainer.insertAdjacentHTML('afterbegin', newPostHtml);
+	postContainer?.insertAdjacentHTML('afterbegin', newPostHtml);
 });
 
 // if typing then enable post button
@@ -182,7 +182,7 @@ async function pressReplayBtn(postId) {
 }
 
 // create new post element btn
-submitBtm.addEventListener('click', async (event) => {
+submitBtm?.addEventListener('click', async (event) => {
 	const formData = new FormData();
 	formData.append('content', postValue);
 	try {
