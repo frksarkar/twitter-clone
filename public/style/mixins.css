@@ -118,6 +118,8 @@
 
 /* popup window */
 .popup-container,
+.upload-profile-pic-container,
+.upload-cover-pic-container,
 .delete-popup-container {
 	width: 30%;
 	position: fixed;
@@ -127,7 +129,7 @@
 	justify-content: center;
 	border-radius: 5px;
 	box-shadow: 0 0 15px 0 #8080804a;
-	transform: translate(135px, -500px);
+	transform: translate(135px, -600px);
 	transition: all 0.5s ease;
 	pointer-events: none;
 	z-index: 2;
@@ -136,9 +138,14 @@
 		justify-content: space-between;
 		padding: 1rem;
 	}
-	& > p {
+	& > p,
+	input {
 		padding: 1rem;
 		border: 1px solid var(--extra-light-gray);
+	}
+	.preview-picture {
+		max-height: 500px;
+		display: none;
 	}
 	&.active {
 		transition: all 0.5s ease;
@@ -174,5 +181,24 @@
 	.post-container {
 		border-top: 1px solid var(--extra-light-gray);
 		border-bottom: initial;
+	}
+}
+
+.followBtn {
+	font-size: 1.1rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-weight: 500;
+	color: var(--blue) !important;
+	border: 1px solid var(--blue);
+	padding: 5px var(--spacing);
+	border-radius: 50px;
+	&:hover {
+		background: var(--blue-extra-light);
+	}
+	&.following:not(a) {
+		background-color: var(--blue);
+		color: #fff !important;
 	}
 }
