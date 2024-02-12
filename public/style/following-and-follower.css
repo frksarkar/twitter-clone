@@ -1,0 +1,35 @@
+.tab-container {
+	display: flex;
+	height: 3rem;
+	font-size: 20px;
+	border-bottom: 1px solid var(--extra-light-gray);
+	& * {
+		flex: 1;
+		display: flex;
+		font-size: 1rem;
+		font-weight: 700;
+		justify-content: center;
+		align-items: center;
+		&.active {
+			border-bottom: 2px solid var(--blue);
+		}
+	}
+}
+
+.follow-container {
+	display: flex;
+	padding: 1rem;
+	gap: 1rem;
+	border-bottom: 1px solid var(--extra-light-gray);
+	.img-container {
+		width: 3rem;
+		height: 3rem;
+		border-radius: 50%;
+		overflow: hidden;
+	}
+	.info {
+		flex: 1;
+		display: flex;
+		gap: 5px;
+	}
+}
