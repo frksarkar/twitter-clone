@@ -1,5 +1,6 @@
 const homePostContainer = document.querySelector('.post');
 const uploadedFile = document.querySelector('#upload-profile-picture');
+const uploadedCoverFile = document.querySelector('#upload-cover-picture');
 const image = document.getElementById('uploadImagePreview');
 
 let cropper;
@@ -21,44 +22,60 @@ document.addEventListener('click', (event) => {
 	// find profile upload button
 	const profilePicUploadBtn = event.target.closest('.profile-pic-btn');
 
+	// find cover picture button
+	const coverPicBtn = event.target.closest('.cover-pic-btn');
+
 	// find close picture upload popup button
 	const profilePicUploadContainerCloseBtn =
 		event.target.closest('.btn-close-popup');
 
+	// find close cover picture upload popup button
+	const coverPicUploadContainerCloseBtn =
+		event.target.closest('.close-cover-popup');
+
 	// find save profile picture
 	const saveProfilePictureBtn = event.target.closest('#save-picture-btn');
+
+	// find save cover picture button
+	const saveCoverPictureBtn = event.target.closest('#save-cover-btn');
 
 	// get user id
 	const userId = profilePicUploadBtn?.dataset.userid;
 
 	// show profile pic upload container
-	profilePicUploadBtn && userId ? toggleUploadPopup(userId) : null;
+	profilePicUploadBtn && userId
+		? toggleUploadPopup(userId, event, '.upload-profile-pic-container')
+		: null;
+
+	// show cover pic upload container
+	coverPicBtn
+		? toggleUploadPopup('', event, '.upload-cover-pic-container')
+		: null;
 
 	// close profile pic upload container
 	profilePicUploadContainerCloseBtn
-		? toggleUploadPopup('close', event)
+		? toggleUploadPopup('close', event, '.upload-profile-pic-container')
+		: null;
+
+	//
+	coverPicUploadContainerCloseBtn
+		? toggleUploadPopup('close', event, '.upload-cover-pic-container')
 		: null;
 
 	// Send the file to the server.
 	saveProfilePictureBtn
-		? sendProfilePicToServer(user._id, cropper, event)
+		? sendProfilePicToServer(user._id, cropper, event, 'profile')
+		: null;
+
+	// Send to the cover image file to the server.
+	saveCoverPictureBtn
+		? sendProfilePicToServer(user._id, cropper, event, 'cover')
 		: null;
 });
 
-uploadedFile.addEventListener('change', (event) => {
-	const reader = new FileReader();
-	console.log('upload file');
-	reader.onload = function (e) {
-		image.src = e.target.result;
-		image.parentElement.style.display = 'block';
-		cropper?.destroy();
-		cropper = new Cropper(image, { aspectRatio: 1 / 1 });
-		// cover image ratio
-		// cropper = new Cropper(image, { aspectRatio: 121 / 36 });
-	};
+uploadedFile.addEventListener('change', loadImage);
 
-	reader.readAsDataURL(event.target.files[0]);
-});
+uploadedCoverFile.addEventListener('change', loadImage);
 
 function injectPostInHtml(posts) {
 	// Initialize an empty string to store the HTML for new posts
@@ -91,11 +108,9 @@ async function loadPosts(data) {
 	return getAllPosts.json();
 }
 
-function toggleUploadPopup(data, event) {
+function toggleUploadPopup(data, event, container) {
 	// get the picture upload container
-	const profilePicUploaderContainer = document.querySelector(
-		'.upload-profile-pic-container'
-	);
+	const profilePicUploaderContainer = document.querySelector(container);
 	const overlayScreen = document.querySelector('.overlay');
 
 	// close the popup container
@@ -115,22 +130,50 @@ function toggleUploadPopup(data, event) {
 	profilePicUploaderContainer.classList.add('active');
 }
 
-// save the profile picture to the server
-function sendProfilePicToServer(userId, image, btn) {
+// save the picture to the server
+function sendProfilePicToServer(userId, cropper, event, imageName) {
+	let imgName = imageName === 'profile' ? 'profilePicture' : 'coverPicture';
 	const form = new FormData();
+	const baseUrl = 'http://localhost:3000';
+	const endpoint = `/users/update/${imageName}/${userId}/image`;
+	const url = baseUrl + endpoint;
 
 	cropper.getCroppedCanvas().toBlob((blob) => {
-		form.append('profileImage', blob);
+		form.append(imgName, blob);
 
-		fetch(`/users/update/${userId}/image`, {
+		fetch(url, {
 			method: 'PUT',
 			body: form,
-		});
+		})
+			.then((data) => console.log(data))
+			.catch((err) => console.log(err));
 	});
 }
 
+//	load image in the element
+function loadImage(event) {
+	const containerId = event.target.getAttribute('id');
+	const imageContainer = event.target.nextElementSibling;
+	const img = imageContainer.children[0];
+	const reader = new FileReader();
 
-// Add event listener for mouseover on profile avatar
+	reader.onload = function (e) {
+		img.src = e.target.result;
+		imageContainer.style.display = 'block';
+		cropper?.destroy();
+
+		if (containerId === 'upload-profile-picture') {
+			cropper = new Cropper(img, { aspectRatio: 1 / 1 });
+		} else {
+			// cover image ratio
+			cropper = new Cropper(img, { aspectRatio: 121 / 36 });
+		}
+	};
+
+	reader.readAsDataURL(event.target.files[0]);
+}
+
+//	Add event listener for mouseover on profile avatar
 document
 	.querySelector('.profile-avatar')
 	.addEventListener('mouseover', function (event) {
