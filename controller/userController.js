@@ -54,8 +54,19 @@ exports.getFollow = async function (req, res, next) {
 	});
 };
 
-exports.profilePicUpdate = async function (req, res, next) {
+exports.profilePicUpdate = function (req, res, next) {
+	req.uploadFieldName = 'profilePicture';
+	next();
+};
+
+exports.coverPicUpdate = function (req, res, next) {
+	req.uploadFieldName = 'coverPicture';
+	next();
+};
+
+exports.updatePicture = async function (req, res, next) {
 	const userId = req.params.userId;
+
 	try {
 		let imageName = Date().split(' ');
 		imageName.length = 5;
@@ -64,7 +75,9 @@ exports.profilePicUpdate = async function (req, res, next) {
 
 		const imageUrl = await uploadImage(req.file.buffer, imageName);
 
-		req.session.user = await User.findByIdAndUpdate(userId, { profilePicture: imageUrl });
+		req.session.user = await User.findByIdAndUpdate(userId, {
+			[req.uploadFieldName]: imageUrl,
+		});
 
 		res.status(204);
 	} catch (err) {
