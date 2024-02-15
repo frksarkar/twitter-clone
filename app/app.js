@@ -36,7 +36,7 @@ app.use(
 // routers
 app.use('/api/posts', postRouter);
 app.use('/login', loginRouter);
-app.use('/logout', isLogin, logoutRouter)
+app.use('/logout', isLogin, logoutRouter);
 app.use('/register', registerRouter);
 app.use('/', isLogin, homeRouter);
 app.use('/profile', profileRouter);

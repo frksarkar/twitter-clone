@@ -79,7 +79,7 @@ exports.updatePicture = async function (req, res, next) {
 			[req.uploadFieldName]: imageUrl,
 		});
 
-		res.status(204);
+		res.status(200).json({ message: 'susses' });
 	} catch (err) {
 		console.log('🚀 ~ file: userController.js:62 ~ l:', err);
 	}
