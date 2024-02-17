@@ -1,7 +1,5 @@
 const homePostContainer = document.querySelector('.post');
-const uploadedFile = document.querySelector('#upload-profile-picture');
-const uploadedCoverFile = document.querySelector('#upload-cover-picture');
-const image = document.getElementById('uploadImagePreview');
+// const uploadedCoverFile = document.querySelector('#upload-cover-picture');
 
 let cropper;
 
@@ -49,7 +47,7 @@ document.addEventListener('click', (event) => {
 
 	// show cover pic upload container
 	coverPicBtn
-		? toggleUploadPopup('', event, '.upload-cover-pic-container')
+		? toggleUploadPopup(userId, event, '.upload-cover-pic-container')
 		: null;
 
 	// close profile pic upload container
@@ -73,9 +71,7 @@ document.addEventListener('click', (event) => {
 		: null;
 });
 
-uploadedFile.addEventListener('change', loadImage);
-
-uploadedCoverFile.addEventListener('change', loadImage);
+// uploadedCoverFile.addEventListener('change', loadImage);
 
 function injectPostInHtml(posts) {
 	// Initialize an empty string to store the HTML for new posts
@@ -111,21 +107,34 @@ async function loadPosts(data) {
 function toggleUploadPopup(data, event, container) {
 	// get the picture upload container
 	const profilePicUploaderContainer = document.querySelector(container);
+
+	//	select picture upload file
+	const uploadedFile =
+		profilePicUploaderContainer.querySelector('#upload-image-file');
+	uploadedFile.addEventListener('change', loadImage);
+
+	// overlay screen
 	const overlayScreen = document.querySelector('.overlay');
 
 	// close the popup container
 	if (data === 'close') {
+		//	image preview container
+		const imagePreview =
+			profilePicUploaderContainer.querySelector('.preview-picture');
+		const img = imagePreview.children[0];
+
 		profilePicUploaderContainer.classList.remove('active');
-		image.src = '';
+		img.src = '';
 		uploadedFile.value = '';
 		cropper?.destroy();
-		document.querySelector('.preview-picture').style.display = 'none';
+		imagePreview.style.display = 'none';
 		// remove screen overlay
 		overlayScreen.classList.remove('active');
 		return;
 	}
 
 	overlayScreen.classList.add('active');
+
 	// open the container
 	profilePicUploaderContainer.classList.add('active');
 }
@@ -145,14 +154,21 @@ function sendProfilePicToServer(userId, cropper, event, imageName) {
 			method: 'PUT',
 			body: form,
 		})
-			.then((data) => console.log(data))
-			.catch((err) => console.log(err));
+			.then((data) => {
+				location.reload();
+			})
+			.catch((err) => {
+				console.log(
+					'🚀 ~ file: profile.js:160 ~ cropper.getCroppedCanvas ~ err:',
+					err
+				);
+			});
 	});
 }
 
 //	load image in the element
 function loadImage(event) {
-	const containerId = event.target.getAttribute('id');
+	const containerId = event.target.getAttribute('class');
 	const imageContainer = event.target.nextElementSibling;
 	const img = imageContainer.children[0];
 	const reader = new FileReader();
