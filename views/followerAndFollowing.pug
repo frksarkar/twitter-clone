@@ -1,0 +1,37 @@
+extends main-page.pug
+
+block append header
+    link(rel="stylesheet", href="/style/following-and-follower.css")
+
+block mainBody
+    //- script.
+    //-     const userId = '!{user._id}'
+    //-     const activeTab = '!{activeTab}'
+    .tab-container
+        - const followingTab = activeTab == 'following' ? true : false
+        - const followerTab = activeTab == 'followers' ? true : false 
+        +createTab('following', followingTab, `/users/${user._id}?action=following`)
+        +createTab('followers', followerTab, `/users/${user._id}?action=followers`)
+    .post
+        if (user[activeTab].length)
+            each val in user[activeTab]
+                .follow-container
+                    .img-container
+                        img(src=val.profilePicture, alt="", srcset="")
+                    .info
+                        h3 #{val.userName}
+                        span @#{val.userName}
+                    .follow-btn-container
+                        if activeTab === 'following'
+                            +createFollowBtn(true, val._id)
+                        if activeTab === 'followers' 
+                            - const isFollow = loginUser.following.includes(val._id.toString())
+                            +createFollowBtn(isFollow, val._id)
+        else 
+            .not-found
+                h2 #{activeTab} not found
+block script
+    script(src="/js/followerAndFollowing.js")
+
+
+    
