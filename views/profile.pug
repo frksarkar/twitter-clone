@@ -1,0 +1,54 @@
+extends main-page.pug
+
+block append header
+    link(rel="stylesheet", href="/style/profile.css")
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.css")
+
+block mainBody
+    script.
+        const userId = '!{user._id}'
+        const activeTab = '!{activeTab}'
+    +profileSection()
+    .profile-container
+        .profile-cover.profile-cover-image
+            img(src=user.coverPicture)
+            button.cover-pic-btn(data-userId=loginUser._id)
+                i.fa-solid.fa-camera
+            .profile-avatar
+                img(src=user.profilePicture)
+                if loginUser._id == user._id 
+                    button.profile-pic-btn(data-userId=loginUser._id)
+                        i.fa-solid.fa-camera
+        .profile-button-container
+            if user._id != loginUser._id
+                a.messageButton(href=`/message/${loginUser._id}`)
+                    i.fa-regular.fa-envelope
+                - const isFollow = loginUser?.following?.includes(user._id.toString());
+                +createFollowBtn(isFollow, user._id)
+        .profile-info
+            h4 #{user.userName}
+            p @#{user.userName}
+            .follower-container
+                - const followers = user?.followers ? user?.followers?.length : '0'
+                - const following = user?.following ? user?.following?.length : '0'
+                - console.log('action: ',follower)
+                a(href=`/users/${user._id}?action=following`)
+                    span.following-count #{following}
+                    span Following  
+                a(href=`/users/${user._id}?action=followers`)
+                    span.followers-count #{followers}
+                    span Followers
+                
+        .tab-container
+            - const postTab = activeTab != 'replies' ? true : false
+            - const repliesTab = postTab ? false : true 
+            +createTab('Post', postTab, `/profile/${user.userName}`)
+            +createTab('Replies', repliesTab, `/profile/${user.userName}?tab=replies`)
+    .post
+
+block script
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js") 
+    script(src="/js/profile.js") 
+    script(src="/js/home.js")
+
+    
