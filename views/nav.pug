@@ -1,7 +1,8 @@
 .icon 
+    - console.log(profileUser)
     a(href="http://") 
         i.active.fa-brands.fa-twitter
-    a(href="http://") 
+    a(href="/") 
         i.fa-solid.fa-house
     a(href="http://") 
         i.fa-solid.fa-magnifying-glass
@@ -9,7 +10,7 @@
         i.fa-regular.fa-bell
     a(href="http://") 
         i.fa-regular.fa-envelope
-    a(href="http://") 
+    a(href=`/profile/${userName}`) 
         i.fa-regular.fa-user
-    a(href="http://") 
+    a(href="/logout") 
         i.fa-solid.fa-arrow-right-from-bracket
