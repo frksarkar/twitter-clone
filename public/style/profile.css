@@ -42,13 +42,13 @@
 		bottom: 0;
 		left: 0;
 		transform: translateY(50%);
-
-		&:hover .profile-pic-btn {
+		&.profile-avatar:hover .profile-pic-btn {
 			opacity: 1;
 			pointer-events: all;
 		}
 	}
 }
+
 
 .profile-button-container {
 	display: flex;
