@@ -32,3 +32,46 @@ mixin deletePopupWindow()
         .popup-button-container
             button.btn-close-popup Close
             button#delete-post-btn(type="submit", disabled) Delete
+
+mixin uploadProfileImage()
+    .upload-profile-pic-container
+        .popup-title
+            h4 Upload You Profile Picture
+            button.btn-close-popup 
+                i.fa-solid.fa-xmark
+        input#upload-image-file.upload-profile-picture(type="file", name="upload-profile-pic")
+        .preview-picture
+            img#uploadImagePreview(src="", alt="", srcset="")
+        .popup-button-container
+            button.btn-close-popup Close
+            button#save-picture-btn(type="submit") Save
+        
+mixin uploadCoverImage()
+    .upload-cover-pic-container
+        .popup-title
+            h4 Upload You Profile Cover Picture
+            button.close-cover-popup 
+                i.fa-solid.fa-xmark
+        input#upload-image-file.upload-cover-picture(type="file", name="upload-profile-pic")
+        .preview-picture
+            img#uploadImagePreview(src="", alt="", srcset="")
+        .popup-button-container
+            button.close-cover-popup Close
+            button#save-cover-btn(type="submit") Save
+
+mixin createFollowBtn(isFollowing, userId)
+    - value = isFollowing ? 'Following' : 'Follow'
+    - buttonClass = isFollowing ? 'followBtn following' : 'followBtn';
+    button(class=buttonClass, data-userId=userId) #{value}
+
+mixin createTab(name, activeTab, href)
+    - className = activeTab ? 'tab active' : 'tab'
+    a(class=className, href=href)
+        span #{name}
+
+//- profile page stricture
+mixin profileSection()
+    +popupWindow()
+    +deletePopupWindow()
+    +uploadProfileImage()
+    +uploadCoverImage()
