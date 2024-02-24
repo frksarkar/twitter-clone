@@ -4,7 +4,7 @@ link(rel="stylesheet", href="/style/mixins.css")
 mixin postCreate(btn)
     .postMainContainer
         .imgContainer 
-            img(src="https://i.pravatar.cc/300", alt="User's profile picture", srcset="")
+            img(src=loginUser.profilePicture, alt="User's profile picture", srcset="")
         .textareaContainer 
             textarea#postbox(placeholder="What's happening?")
             if btn
