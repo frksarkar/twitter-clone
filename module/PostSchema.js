@@ -11,6 +11,7 @@ const postSchema = new Schema(
 		retweetUsers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 		retweetData: { type: Schema.Types.ObjectId, ref: 'Post' },
 		replayTo: { type: Schema.Types.ObjectId, ref: 'Post' },
+		pinned: { type: Boolean, default: false },
 	},
 	{ timestamps: true }
 );
