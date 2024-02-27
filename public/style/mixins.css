@@ -119,6 +119,7 @@
 /* popup window */
 .popup-container,
 .pinned-popup-container,
+.unpinned-popup-container,
 .upload-profile-pic-container,
 .upload-cover-pic-container,
 .delete-popup-container {

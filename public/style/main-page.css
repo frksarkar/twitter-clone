@@ -74,3 +74,25 @@
 	display: none;
 	z-index: 3;
 }
+
+/* post pin style */
+.pin-btn.active i {
+	color: var(--blue);
+}
+
+.pin-text > div {
+	font-size: small;
+	display: flex;
+	gap: 5px;
+	align-items: center;
+	i {
+		font-size: small;
+	}
+}
+
+.pin-post {
+	display: flex;
+	gap: 1rem;
+	border-bottom: 0.5rem solid var(--extra-light-gray);
+	flex-direction: column;
+}
