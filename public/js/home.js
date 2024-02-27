@@ -52,6 +52,24 @@ document.addEventListener('click', (event) => {
 	const dialogBoxCloseBtn = event.target.closest('.btn-close-popup');
 	// find the follow button
 	const followBtn = event.target.closest('.followBtn');
+	// find the pin button
+	const pinBtn = event.target.closest('.pin-btn');
+	// find the button request pin post
+	event.target.closest('#pinned-post-btn') ? pinnedPost(postId, true) : null;
+	// find the button request unpin the post
+	event.target.closest('#unpinned-post-btn')
+		? pinnedPost(postId, false)
+		: null;
+
+	console.log();
+	// open the pinned container
+	if (pinBtn && !pinBtn?.dataset.pin) {
+		activeClass('pinned-popup-container');
+	}
+
+	if (pinBtn && pinBtn?.dataset.pin) {
+		activeClass('unpinned-popup-container');
+	}
 
 	// Get the id of the post container, if it exists
 	const elementId = postContainer
@@ -63,11 +81,8 @@ document.addEventListener('click', (event) => {
 		postId = elementId;
 	}
 
-	if (deletePost) {
-		document.querySelector('.overlay').classList.add('active');
-		deleteBox.classList.add('active');
-		deletePostBtn.disabled = false;
-	}
+	//	open the delete post container
+	deletePost ? activeClass('delete-popup-container') : null;
 
 	followBtn ? follow(followBtn) : null;
 
@@ -87,11 +102,25 @@ document.addEventListener('click', (event) => {
 	}
 });
 
+function activeClass(name) {
+	const element = document.querySelector(`.${name}`);
+	document.querySelector('.overlay').classList.add('active');
+	element.classList.add('active');
+}
+
 deletePostBtn.addEventListener('click', async () => {
-	if (!postId) return console.log('post id is required');
-	const response = await postDeleteReq(postId);
-	showToast('You are delete this post', 2000);
-	location.reload();
+	try {
+		if (!postId) return console.log('post id is required');
+		const response = await postDeleteReq(postId);
+		if (!response.ok) throw new Error('HTTP request problem');
+		showToast('You are delete this post', 2000);
+		location.reload();
+	} catch (error) {
+		console.log(
+			'🚀 ~ file: home.js:119 ~ deletePostBtn.addEventListener ~ error:',
+			error
+		);
+	}
 });
 
 // Add event listener for keyup event on dialogBoxTextArea
@@ -118,6 +147,12 @@ function dialogBoxClose() {
 	dialogBox.querySelector('.post')
 		? dialogBox.querySelector('.post').remove()
 		: null;
+	document
+		.querySelector('.pinned-popup-container')
+		?.classList.remove('active');
+	document
+		.querySelector('.unpinned-popup-container')
+		?.classList.remove('active');
 }
 
 dialogBoxSubmitBtn.addEventListener('click', () => {
@@ -224,6 +259,25 @@ async function getPost(postId) {
 	});
 
 	return postData.json();
+}
+
+//	toggle the pin post
+async function pinnedPost(postId, pin) {
+	try {
+		const postData = await fetch('/api/posts/' + postId + '/pinned', {
+			method: 'PUT',
+			body: JSON.stringify({ pinned: pin }),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
+
+		if (!postData.ok) throw new Error('HTTP error');
+
+		location.reload();
+	} catch (err) {
+		console.log('🚀 ~ file: home.js:260 ~ pinnedPost ~ err:', err);
+	}
 }
 
 async function replayToPost(formData) {

@@ -10,9 +10,17 @@ function createHtml(postData) {
 	let retweetText = '';
 	let retweetTimestamp = '';
 	let postAction = '';
+	let pin = '';
 	if (postData.postedBy?._id === user._id) {
-		postAction = `<button class='pin-btn'> <i class="fa-solid fa-thumbtack"></i> </button>
+		postAction = `<button class='pin-btn ${
+			postData.pinned ? 'active' : ''
+		}' data-pin='${
+			postData.pinned ? 'active' : ''
+		}'> <i class="fa-solid fa-thumbtack"></i> </button>
 		<button class='delete-btn'> <i class="fa-solid fa-xmark"></i> </button>`;
+	}
+	if (postData.pinned) {
+		pin = `<div><i class="fa-solid fa-thumbtack"></i> Pinned post</div>`;
 	}
 	if (retweetData) {
 		retweetBy = postData.postedBy.userName;
@@ -39,7 +47,7 @@ function createHtml(postData) {
 	return `<div class="post" data-id='${postData._id}'>
 				<div class='post-container'>
 					<div class='retweet-container'> 
-						${retweetText} ${retweetTimestamp}
+						${retweetText} ${retweetTimestamp} 
 					</div>
 					<div class='post-content'>
 						<div class="imgContainer">
@@ -50,6 +58,7 @@ function createHtml(postData) {
 							/>
 						</div>
 						<div class="post-body">
+							<div class="pin-text">${pin}</div>
 							<div class="post-header">
 								<div class='post-header-info'>
 									<span><a href='/profile/${userData?.userName}'>${userData?.userName}</a></span>

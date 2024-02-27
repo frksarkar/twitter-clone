@@ -180,3 +180,23 @@ exports.deletePost = async (req, res, next) => {
 		next(err);
 	}
 };
+
+exports.pinnedPost = async (req, res, next) => {
+	const userId = req.session.user?._id;
+	const postId = req.params.id;
+	if (!userId) return res.redirect('login');
+	try {
+		if (req.body.pinned) {
+			await Post.updateMany({ postedBy: userId }, { pinned: false });
+		}
+
+		await Post.findByIdAndUpdate(postId, req.body);
+		res.status(204).end();
+	} catch (error) {
+		console.log(
+			'🚀 ~ file: postController.js:191 ~ exports.pinnedPost= ~ error:',
+			error
+		);
+		next(error);
+	}
+};

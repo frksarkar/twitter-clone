@@ -80,6 +80,17 @@ function injectPostInHtml(posts) {
 	// Loop through each post data and create HTML for each post
 	posts.forEach((postData) => {
 		newPostHtml += createHtml(postData);
+		if (postData.pinned) {
+			const pinPostContainer = document.querySelector(
+				'.pin-post-container'
+			);
+			let para = document.createElement('div');
+			para.classList.add('pin-post');
+			let postHtml = createHtml(postData);
+			para.insertAdjacentHTML('afterbegin', postHtml);
+			pinPostContainer.appendChild(para);
+			// pinPostContainer.insertAdjacentHTML('afterbegin', para);
+		}
 	});
 
 	// If there are no posts, add a message to indicate that nothing is to be shown
