@@ -7,6 +7,8 @@ const upload = multer({ storage: storage });
 
 const userRouter = express.Router();
 
+userRouter.get('/', user.users);
+
 userRouter.get('/:userId', user.getFollowerAndFollowing);
 
 userRouter.put('/:userId/follow', user.getFollow);

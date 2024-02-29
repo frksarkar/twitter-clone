@@ -12,15 +12,15 @@ const { postRouter } = require('../routers/postRouter');
 const { isLogin } = require('../middleware/authHandler');
 const { homeRouter } = require('../routers/homeRouter');
 const { profileRouter } = require('../routers/profileRouter');
-const { testController } = require('../controller/testController');
 const { logoutRouter } = require('../routers/logoutRouter');
 const { userRouter } = require('../routers/userRouter');
+const { searchRouter } = require('../routers/searchRouter');
 
 const app = express();
 
 // set default values
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
 app.use(morgan('dev'));
 app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, '..', 'public')));
@@ -39,9 +39,9 @@ app.use('/login', loginRouter);
 app.use('/logout', isLogin, logoutRouter);
 app.use('/register', registerRouter);
 app.use('/', isLogin, homeRouter);
-app.use('/profile', profileRouter);
-app.use('/users', userRouter);
-
+app.use('/profile', isLogin, profileRouter);
+app.use('/users', isLogin, userRouter);
+app.use('/search', isLogin, searchRouter);
 //todo: not found router
 
 // error handlers

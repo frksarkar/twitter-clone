@@ -1,6 +1,19 @@
 const { User } = require('../module/userSchema');
 const { uploadImage } = require('../util/uploadImage');
 
+exports.users = async function (req, res, next) {
+	const search = req.query.search;
+	try {
+		const users = await User.find({
+			userName: { $regex: search, $options: 'i' },
+		}).select('-password');
+		
+		res.status(200).json(users);
+	} catch (error) {
+		console.log('🚀 ~ file: userController.js:9 ~ error:', error);
+	}
+};
+
 exports.getFollowerAndFollowing = async function (req, res, next) {
 	const userId = req.params.userId;
 	const { action } = req.query;

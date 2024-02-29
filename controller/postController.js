@@ -42,6 +42,10 @@ exports.getAllPosts = async function (req, res, next) {
 		searchObj.replayTo = { $exists: true };
 	}
 
+	if(query.search) {
+		searchObj.content = { $regex: query.search };
+	}
+
 	const allPosts = await Post.find(searchObj)
 		.sort({ createdAt: -1 })
 		.populate({
