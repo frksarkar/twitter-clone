@@ -1,0 +1,31 @@
+extends main-page.pug
+
+block append header
+    link(rel="stylesheet", href="/style/following-and-follower.css")
+    link(rel="stylesheet", href="/style/search.css")
+
+block mainBody
+    script.
+        const activeTab = '!{activeTab}'
+    .popup
+        +searchSection()
+    .search-box 
+        .search-container
+            i.fa-solid.fa-magnifying-glass
+            input#search(type="text", name="search", placeholder="Search you think")
+    .tab-container
+        - const postsTab = activeTab == 'posts' ? true : false
+        - const usersTab = activeTab == 'users' ? true : false 
+        +createTab('Posts', postsTab, '/search')
+        +createTab('Users', usersTab, '/search/users')
+    .search-result-box
+        .search-contain
+             .not-found
+                h3 Your Search Result
+        
+block script
+    script(src="/js/search.js")
+    script(src="/js/home.js")
+
+
+    
