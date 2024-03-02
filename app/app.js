@@ -15,6 +15,7 @@ const { profileRouter } = require('../routers/profileRouter');
 const { logoutRouter } = require('../routers/logoutRouter');
 const { userRouter } = require('../routers/userRouter');
 const { searchRouter } = require('../routers/searchRouter');
+const { inboxRouter } = require('../routers/inboxRouter');
 
 const app = express();
 
@@ -42,6 +43,8 @@ app.use('/', isLogin, homeRouter);
 app.use('/profile', isLogin, profileRouter);
 app.use('/users', isLogin, userRouter);
 app.use('/search', isLogin, searchRouter);
+app.use('/messages', isLogin, inboxRouter)
+
 //todo: not found router
 
 // error handlers
