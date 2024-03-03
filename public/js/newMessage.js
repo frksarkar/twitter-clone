@@ -116,7 +116,12 @@ async function createChat(data) {
 	const postData = await fetch(url, {
 		method: 'POST',
 		body: JSON.stringify(data),
+		headers: { 'Content-Type': 'application/json' },
 	});
+	console.log(
+		'🚀 ~ file: newMessage.js:124 ~ createChat ~ postData:',
+		postData
+	);
 
 	return postData.json();
 }

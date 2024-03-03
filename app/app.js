@@ -16,6 +16,7 @@ const { logoutRouter } = require('../routers/logoutRouter');
 const { userRouter } = require('../routers/userRouter');
 const { searchRouter } = require('../routers/searchRouter');
 const { inboxRouter } = require('../routers/inboxRouter');
+const { chatRouter } = require('../routers/chatRouter');
 
 const app = express();
 
@@ -35,7 +36,8 @@ app.use(
 );
 
 // routers
-app.use('/api/posts', postRouter);
+app.use('/api/posts', isLogin, postRouter);
+app.use('/api/chat', isLogin, chatRouter);
 app.use('/login', loginRouter);
 app.use('/logout', isLogin, logoutRouter);
 app.use('/register', registerRouter);
@@ -43,7 +45,7 @@ app.use('/', isLogin, homeRouter);
 app.use('/profile', isLogin, profileRouter);
 app.use('/users', isLogin, userRouter);
 app.use('/search', isLogin, searchRouter);
-app.use('/messages', isLogin, inboxRouter)
+app.use('/messages', isLogin, inboxRouter);
 
 //todo: not found router
 
