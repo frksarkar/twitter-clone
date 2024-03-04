@@ -14,7 +14,12 @@ block body
                 include nav.pug
             .colum.colum-body 
                 .main-body-title.spacer
-                    h3 #{pageTitle}
+                    .page-title
+                        h3 #{pageTitle}
+                    .title-menu
+                        if logoActive
+                            a(href="/messages/new") 
+                                i.fa-solid.fa-comment-medical
                 block mainBody
             .colum.colum-side-bar 
                 h2 side bar 

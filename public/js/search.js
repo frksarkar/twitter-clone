@@ -52,10 +52,10 @@ function createUserHtml(searchUser) {
 		: 'Follow';
 	return `<div class="follow-container">
 				<div class="img-container"><img src="${searchUser.profilePicture}" alt="" srcset=""></div>
-					<div class="info">
+					<a href="/profile/${searchUser.userName}" class="info">
 						<h3>${searchUser.userName}</h3>
 						<span>${searchUser.userName}</span>
-					</div>
+					</a>
 				<div class="follow-btn-container">
 					<button class="followBtn following" data-userid="${searchUser._id}">${isFollow}</button>
 				</div>

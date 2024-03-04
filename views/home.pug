@@ -4,10 +4,8 @@ block append header
     link(rel="stylesheet", href="/style/home.css")
     
 block mainBody
-    +homeSection
+    +homeSection()
     .main-post-container
-   
-
     //- each val in postsData
     //- +submitPost(userData, val)
 block script

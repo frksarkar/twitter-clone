@@ -112,7 +112,7 @@ deletePostBtn.addEventListener('click', async () => {
 	try {
 		if (!postId) return console.log('post id is required');
 		const response = await postDeleteReq(postId);
-		if (!response.ok) throw new Error('HTTP request problem');
+		if (response.status != 'success') throw new Error('HTTP request problem');
 		showToast('You are delete this post', 2000);
 		location.reload();
 	} catch (error) {

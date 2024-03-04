@@ -44,8 +44,9 @@ block mainBody
             - const repliesTab = postTab ? false : true 
             +createTab('Post', postTab, `/profile/${user.userName}`)
             +createTab('Replies', repliesTab, `/profile/${user.userName}?tab=replies`)
+    .pin-post-container
+        //- .postMainContainer
     .post
-
 block script
     script(src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js") 
     script(src="/js/profile.js") 
