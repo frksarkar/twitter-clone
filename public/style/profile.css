@@ -49,7 +49,6 @@
 	}
 }
 
-
 .profile-button-container {
 	display: flex;
 	gap: var(--spacing);
@@ -114,3 +113,4 @@
 		}
 	}
 }
+
