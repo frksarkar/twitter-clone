@@ -44,6 +44,18 @@ mixin pinnedPostPopupWindow()
             button.btn-close-popup Close
             button#pinned-post-btn(type="submit") Pinned
 
+mixin unpinnedPostPopupWindow()
+    .unpinned-popup-container
+        .popup-title
+            h4 UnPinned Post
+            button.btn-close-popup 
+                i.fa-solid.fa-xmark
+        p Are you sure you can unpin the post?
+        .popup-button-container
+            button.btn-close-popup Close
+            button#unpinned-post-btn(type="submit") UnPinned
+
+
 mixin uploadProfileImage()
     .upload-profile-pic-container
         .popup-title
@@ -87,8 +99,18 @@ mixin profileSection()
     +uploadProfileImage()
     +uploadCoverImage()
     +pinnedPostPopupWindow()
+    +unpinnedPostPopupWindow()
 
 mixin homeSection()
     +postCreate(true)
     +popupWindow()
     +deletePopupWindow()
+    +pinnedPostPopupWindow()
+    +unpinnedPostPopupWindow()
+
+
+mixin searchSection()
+    +popupWindow()
+    +deletePopupWindow()
+    +pinnedPostPopupWindow()
+    +unpinnedPostPopupWindow()
