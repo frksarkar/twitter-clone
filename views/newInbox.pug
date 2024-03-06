@@ -1,0 +1,21 @@
+extends main-page.pug
+
+block append header
+    link(rel="stylesheet", href="/style/newInbox.css")
+    link(rel="stylesheet", href="/style/following-and-follower.css")
+    
+block mainBody
+    .search-container
+        .search-box
+            .input-icon-label
+                label(for="searchInputText") 
+                    i.fa-solid.fa-magnifying-glass
+                .add-friends
+            input#searchInputText(type="text", placeholder="Search You Friends")
+    .show-result
+    .create-chat-btn-container
+        button#create-chat-btn(type="submit", disabled) Create
+block script
+    script(src="/js/newMessage.js")
+
+
