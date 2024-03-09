@@ -1,14 +1,23 @@
 const { Chat } = require('../module/chatSchema');
 
+exports.getMessage = async (req, res, next) => {
+	const loginUserId = req.session.user._id;
+	const messages = await Chat.find({
+		users: loginUserId,
+	}).populate({ path: 'users', select: '-password' });
+	res.status(200).json(messages);
+};
+
 exports.createChat = async (req, res, next) => {
-	const userId = req.session?.user._id;
+	const loginUserId = req.session?.user._id;
+	const usersId = req.body;
 
 	try {
-		if (!req.body?.length) throw new Error('provide user id');
-
+		if (!usersId?.length) throw new Error('provide user id');
+		usersId.push(loginUserId);
 		const chatObj = {
-			createdBy: userId,
-			users: req.body,
+			createdBy: loginUserId,
+			users: usersId,
 			isGroupChat: true,
 		};
 		const createChat = await Chat.create(chatObj);
