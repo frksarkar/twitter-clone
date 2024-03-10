@@ -8,12 +8,9 @@ exports.getProfile = async (req, res, next) => {
 	}
 
 	const findUser = await User.findOne({ userName: profileIdAndName });
-	const Payload = {
-		pageTitle: 'Profile',
-		loginUser: req.session.user,
-		loginUserJs: JSON.stringify(req.session.user),
+	const payload = {
 		user: findUser,
 		activeTab,
 	};
-	res.render('profile', Payload);
+	res.render('profile', payload);
 };

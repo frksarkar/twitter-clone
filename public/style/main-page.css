@@ -39,6 +39,7 @@
 
 .colum-body {
 	display: flex;
+	min-width: 480px;
 	flex-direction: column;
 	border-right: 1px solid var(--extra-light-gray);
 	border-left: 1px solid var(--extra-light-gray);

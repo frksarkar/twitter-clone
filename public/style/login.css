@@ -9,8 +9,7 @@ body {
 }
 
 .wrapper {
-	width: 25%;
-	max-width: 30%;
+	max-width: 400px;
 	text-align: center;
 	background: var(--white);
 	padding: 2rem;

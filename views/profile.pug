@@ -12,16 +12,17 @@ block mainBody
     .profile-container
         .profile-cover.profile-cover-image
             img(src=user.coverPicture)
-            button.cover-pic-btn(data-userId=loginUser._id)
-                i.fa-solid.fa-camera
+            if loginUser._id == user._id 
+                button.cover-pic-btn(data-userId=user._id)
+                    i.fa-solid.fa-camera
             .profile-avatar
                 img(src=user.profilePicture)
                 if loginUser._id == user._id 
-                    button.profile-pic-btn(data-userId=loginUser._id)
+                    button.profile-pic-btn(data-userId=user._id)
                         i.fa-solid.fa-camera
         .profile-button-container
             if user._id != loginUser._id
-                a.messageButton(href=`/message/${loginUser._id}`)
+                a.messageButton(href=`/message/${user._id.toString()}`)
                     i.fa-regular.fa-envelope
                 - const isFollow = loginUser?.following?.includes(user._id.toString());
                 +createFollowBtn(isFollow, user._id)

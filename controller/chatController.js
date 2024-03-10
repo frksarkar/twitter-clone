@@ -1,10 +1,17 @@
 const { Chat } = require('../module/chatSchema');
 
+exports.getChats = (req, res, next) => {
+	res.render('chatPage');
+};
+
 exports.getMessage = async (req, res, next) => {
 	const loginUserId = req.session.user._id;
 	const messages = await Chat.find({
 		users: loginUserId,
-	}).populate({ path: 'users', select: '-password' });
+	})
+		.sort({ createdAt: -1 })
+		.populate({ path: 'users', select: '-password' });
+
 	res.status(200).json(messages);
 };
 
