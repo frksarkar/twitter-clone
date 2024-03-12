@@ -17,10 +17,12 @@ const { userRouter } = require('../routers/userRouter');
 const { searchRouter } = require('../routers/searchRouter');
 const { inboxRouter } = require('../routers/inboxRouter');
 const { chatRouter } = require('../routers/chatRouter');
+const { notFound } = require('../middleware/notFoundHandler');
+const { messageRouter } = require('../routers/messageRouter');
 
 const app = express();
 
-// set default values
+//	set default values
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
@@ -35,8 +37,9 @@ app.use(
 	})
 );
 
-// routers
+//	routers
 app.use('/api/posts', isLogin, postRouter);
+app.use('/api/message', isLogin, messageRouter);
 app.use('/api/chat', isLogin, chatRouter);
 app.use('/login', loginRouter);
 app.use('/logout', isLogin, logoutRouter);
@@ -47,9 +50,10 @@ app.use('/users', isLogin, userRouter);
 app.use('/search', isLogin, searchRouter);
 app.use('/messages', isLogin, inboxRouter);
 
-//todo: not found router
+//	not found handlers
+app.use('/:id', notFound);
 
-// error handlers
+//	error handlers
 app.use(errorHandler);
 
 exports.app = app;
