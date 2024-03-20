@@ -8,7 +8,7 @@ const morgan = require('morgan');
 const { loginRouter } = require('../routers/loginRouter');
 const { registerRouter } = require('../routers/registerRouter');
 const { errorHandler } = require('../middleware/errorHandler');
-const { postRouter } = require('../routers/postRouter');
+const { postsRouter } = require('../routers/postsRouter');
 const { isLogin } = require('../middleware/authHandler');
 const { homeRouter } = require('../routers/homeRouter');
 const { profileRouter } = require('../routers/profileRouter');
@@ -19,6 +19,8 @@ const { inboxRouter } = require('../routers/inboxRouter');
 const { chatRouter } = require('../routers/chatRouter');
 const { notFound } = require('../middleware/notFoundHandler');
 const { messageRouter } = require('../routers/messageRouter');
+const { notificationRouter } = require('../routers/notificationRouter');
+const { postRouter } = require('../routers/postRouter');
 
 const app = express();
 
@@ -38,7 +40,7 @@ app.use(
 );
 
 //	routers
-app.use('/api/posts', isLogin, postRouter);
+app.use('/api/posts', isLogin, postsRouter);
 app.use('/api/message', isLogin, messageRouter);
 app.use('/api/chat', isLogin, chatRouter);
 app.use('/login', loginRouter);
@@ -49,6 +51,8 @@ app.use('/profile', isLogin, profileRouter);
 app.use('/users', isLogin, userRouter);
 app.use('/search', isLogin, searchRouter);
 app.use('/messages', isLogin, inboxRouter);
+app.use('/notifications', isLogin, notificationRouter);
+app.use('/post', isLogin, postRouter);
 
 //	not found handlers
 app.use('/:id', notFound);
