@@ -31,12 +31,9 @@ function addFriendsToContainer(userId, name) {
 }
 
 function createChatBtnToggle(users) {
-	if (users?.length) {
-		document.querySelector('#create-chat-btn').disabled = false;
-	} else {
-		document.querySelector('#create-chat-btn').disabled = true;
-	}
+	document.querySelector('#create-chat-btn').disabled = !users.length;
 }
+
 
 function removeUserElement() {
 	const userId = selectedUser.pop();
@@ -66,15 +63,25 @@ document.querySelector('#searchInputText').addEventListener('keyup', (e) => {
 	}, 500);
 });
 
-document.querySelector('#create-chat-btn').addEventListener('click', () => {
-	if (selectedUser.length) {
-		createChat(selectedUser);
-	}
-});
+document
+	.querySelector('#create-chat-btn')
+	.addEventListener('click', async () => {
+		if (selectedUser.length) {
+			const result = await requestAPI(
+				'/api/chat/create',
+				'POST',
+				selectedUser
+			);
+			if (result) {
+				showToastMessage('Group created successfully');
+				setTimeout(() => location.reload(), 3000);
+			}
+		}
+	});
 
 async function searchResult(value, loginUserId) {
 	let htmlMarkup = '';
-	const users = await getPosts('/users', value);
+	const users = await requestAPI(`/users?search=${value}`);
 
 	if (users.length) {
 		users.forEach((user) => {
@@ -91,37 +98,14 @@ async function searchResult(value, loginUserId) {
 	document.querySelector('.show-result').innerHTML = htmlMarkup;
 }
 
-function createUserHtml(searchUser) {
-	return `<a href="#" class="follow-container" data-userid="${searchUser._id}">
+function createUserHtml({ _id, profilePicture, userName }) {
+	return `<a href="#" class="follow-container" data-userid="${_id}">
 				<div class="img-container">
-                    <img src="${searchUser.profilePicture}" alt="" srcset="">
+                    <img src="${profilePicture}" alt="" srcset="">
                 </div>
 					<div class="info">
-						<h3>${searchUser.userName}</h3>
-						<span>${searchUser.userName}</span>
+						<h3>${userName}</h3>
+						<span>${userName}</span>
 				    </div>
 			</a>`;
-}
-
-async function getPosts(url, value) {
-	const postData = await fetch(`${url}?search=${value}`, {
-		method: 'GET',
-	});
-
-	return postData.json();
-}
-
-async function createChat(data) {
-	const url = '/api/chat/create';
-	const postData = await fetch(url, {
-		method: 'POST',
-		body: JSON.stringify(data),
-		headers: { 'Content-Type': 'application/json' },
-	});
-	console.log(
-		'🚀 ~ file: newMessage.js:124 ~ createChat ~ postData:',
-		postData
-	);
-
-	return postData.json();
 }

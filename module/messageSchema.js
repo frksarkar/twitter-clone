@@ -1,6 +1,4 @@
-const mongoose = require('mongoose');
-
-const Schema = mongoose.Schema;
+const { Schema, model } = require('mongoose');
 
 const messageSchema = new Schema(
 	{
@@ -14,4 +12,4 @@ const messageSchema = new Schema(
 	}
 );
 
-exports.Message = mongoose.model('Message', messageSchema);
+exports.Message = model('Message', messageSchema);
