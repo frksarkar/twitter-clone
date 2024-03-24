@@ -72,7 +72,6 @@ document.addEventListener('click', (event) => {
 });
 
 // uploadedCoverFile.addEventListener('change', loadImage);
-
 function injectPostInHtml(posts) {
 	// Initialize an empty string to store the HTML for new posts
 	let newPostHtml = '';

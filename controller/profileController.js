@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const { User } = require('../module/userSchema');
 
 exports.getProfile = async (req, res, next) => {
@@ -7,7 +8,12 @@ exports.getProfile = async (req, res, next) => {
 		activeTab = 'replies';
 	}
 
-	const findUser = await User.findOne({ userName: profileIdAndName });
+	let findUser = await User.findOne({ userName: profileIdAndName });
+	const isObjId = mongoose.isValidObjectId(profileIdAndName);
+	if (isObjId) {
+		findUser = await User.findOne({ _id: profileIdAndName });
+	}
+
 	const payload = {
 		user: findUser,
 		activeTab,
