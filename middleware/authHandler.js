@@ -3,6 +3,7 @@ exports.isLogin = function (req, res, next) {
 		res.redirect('/login');
 		return;
 	}
+	req.loginUserId = req.session.user._id;
 	next();
 };
 
