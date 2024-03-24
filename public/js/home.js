@@ -1,6 +1,8 @@
+const submitBtn = document.querySelector('#submitPostBtn');
+const homeDialogBoxTextArea = document.querySelector('.homeTextArea');
 const likeBtn = document.querySelector('.like-btn');
 const dialogBox = document.querySelector('.popup-container');
-const dialogBoxTextArea = dialogBox.querySelector('#postbox');
+const dialogBoxTextArea = document.querySelector('#postbox');
 const dialogBoxSubmitBtn = dialogBox.querySelector('button[type=submit]');
 const deleteBox = document.querySelector('.delete-popup-container');
 const deletePostBtn = deleteBox.querySelector('#delete-post-btn');
@@ -31,10 +33,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	// Insert the new post HTML at the beginning of the post container
 	postContainer?.insertAdjacentHTML('afterbegin', newPostHtml);
+	loaderRemove(postContainer);
 });
 
 // if typing then enable post button
-textBox.addEventListener('keyup', handleInput);
+homeDialogBoxTextArea?.addEventListener('keyup', handleInputChange);
 
 //  Add event listener for document click event
 document.addEventListener('click', (event) => {
@@ -61,7 +64,6 @@ document.addEventListener('click', (event) => {
 		? pinnedPost(postId, false)
 		: null;
 
-	console.log();
 	// open the pinned container
 	if (pinBtn && !pinBtn?.dataset.pin) {
 		activeClass('pinned-popup-container');
@@ -110,10 +112,11 @@ function activeClass(name) {
 
 deletePostBtn.addEventListener('click', async () => {
 	try {
-		if (!postId) return console.log('post id is required');
+		if (!postId) return alert('post id is required');
 		const response = await postDeleteReq(postId);
-		if (response.status != 'success') throw new Error('HTTP request problem');
-		showToast('You are delete this post', 2000);
+		if (response.status != 'success')
+			throw new Error('HTTP request problem');
+		showToastMessage('You are delete this post', 2000);
 		location.reload();
 	} catch (error) {
 		console.log(
@@ -124,15 +127,12 @@ deletePostBtn.addEventListener('click', async () => {
 });
 
 // Add event listener for keyup event on dialogBoxTextArea
-dialogBoxTextArea.addEventListener('keyup', function handleInput(event) {
-	// Trim the input value
+dialogBoxTextArea.addEventListener('keyup', function handleInputChange(event) {
 	postValue = event.target.value.trim();
-	// If the trimmed value is not empty, enable the submit button
 	if (postValue) {
 		dialogBoxSubmitBtn.disabled = false;
 		return;
 	}
-	// If the trimmed value is empty, disable the submit button
 	dialogBoxSubmitBtn.disabled = true;
 });
 
@@ -204,7 +204,7 @@ async function pressTweetBtn(tweetBtn, elementId) {
 // Asynchronously presses the replay button for a given post ID.
 async function pressReplayBtn(postId) {
 	if (!postId) {
-		console.log('post id is required');
+		alert('post id is required');
 	}
 	document.querySelector('.overlay').classList.add('active');
 	dialogBox.classList.add('active');
@@ -216,39 +216,39 @@ async function pressReplayBtn(postId) {
 	}, 500);
 }
 
-// create new post element btn
-submitBtm?.addEventListener('click', async (event) => {
+submitBtn?.addEventListener('click', async (event) => {
+	const content = homeDialogBoxTextArea.value.trim();
+
+	if (!content) {
+		showToastMessage("can't post");
+		return;
+	}
+
 	const formData = new FormData();
-	formData.append('content', postValue);
-	try {
-		const request = await fetch('/api/posts', {
-			method: 'POST',
-			body: new URLSearchParams(formData).toString(),
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			},
-		});
-		const newPostData = await request.json();
+	formData.append('content', content);
 
-		if (newPostData.status === 'failed') {
-			console.log('can not post');
-			return;
-		}
+	const response = await fetch('/api/posts', {
+		method: 'POST',
+		body: new URLSearchParams(formData),
+	});
 
-		textBox.value = '';
-		submitBtm.disabled = true;
+	if (!response.ok) {
+		alert('Post failed');
+		return;
+	}
 
-		// create a new post html element
-		const newPostHtml = createHtml(newPostData.data);
-		postContainer.insertAdjacentHTML('afterbegin', newPostHtml);
+	homeDialogBoxTextArea.value = '';
+	submitBtn.disabled = true;
 
-		// the new post place then delete the empty box
-		const postBox = postContainer.querySelector('.empty');
-		if (postBox && postBox.classList.contains('empty')) {
-			postBox.remove();
-		}
-	} catch (error) {
-		console.log('🚀 ~ submitBtm.addEventListener ~ error:', error);
+	const newPostData = await response.json();
+	const newPostHtml = createHtml(newPostData.data);
+
+	postContainer.insertAdjacentHTML('afterbegin', newPostHtml);
+
+	const emptyBox = postContainer.querySelector('.empty');
+
+	if (emptyBox) {
+		emptyBox.remove();
 	}
 });
 
@@ -290,7 +290,7 @@ async function replayToPost(formData) {
 			},
 		});
 		const newPostData = await request.json();
-		showToast('You are replay this post', 2000);
+		showToastMessage('You are replay this post', 2000);
 		console.log('🚀 ~ replayToPost ~ newPostData:', newPostData);
 	} catch (error) {
 		console.log('🚀 ~ replayToPost ~ error:', error);
@@ -308,20 +308,19 @@ async function postDeleteReq(postId) {
 
 async function follow(btn) {
 	const userId = btn.dataset.userid;
-	const request = await fetch(`/users/${userId}/follow`, {
-		method: 'PUT',
-	});
+	const result = await requestAPI(`/users/${userId}/follow`, 'PUT');
 
-	const result = await request.json();
 	const followCount = document.querySelector('.followers-count');
 
 	if (result.action === 'Follow') {
 		btn.innerText = 'Follow';
 		btn.classList.remove('following');
-		followCount.innerText = parseInt(followCount.innerText) - 1;
+		if (followCount)
+			followCount.innerText = parseInt(followCount?.innerText) - 1;
 	} else {
 		btn.innerText = 'Following';
 		btn.classList.add('following');
-		followCount.innerText = parseInt(followCount.innerText) + 1;
+		if (followCount)
+			followCount.innerText = parseInt(followCount?.innerText) + 1;
 	}
 }
