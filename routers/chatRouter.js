@@ -8,6 +8,8 @@ chatRouter.get('/', chat.getMessage);
 
 chatRouter.post('/create', chat.createChat);
 
-chatRouter.get('/:id', payloadHandler('Chat'), chat.getChats);
+chatRouter.get('/:id', payloadHandler('Chat'), chat.getChatPage);
+
+chatRouter.put('/:id', payloadHandler('Chat'), chat.updateChat);
 
 exports.chatRouter = chatRouter;

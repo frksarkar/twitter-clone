@@ -2,13 +2,13 @@ extends main-page.pug
 
 block append header
     link(rel="stylesheet", href="/style/home.css")
-    
+
 block mainBody
     +homeSection()
-    .main-post-container
-    //- each val in postsData
-    //- +submitPost(userData, val)
+    +postCreate(true, 'homeTextArea')
+    .loader-wrapper
+        .loader
+    .main-post-container(style="display:none")
+
 block script
     script(src="/js/home.js")
-
-

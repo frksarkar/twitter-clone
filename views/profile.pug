@@ -8,7 +8,8 @@ block mainBody
     script.
         const userId = '!{user._id}'
         const activeTab = '!{activeTab}'
-    +profileSection()
+    .center
+        +profileSection()
     .profile-container
         .profile-cover.profile-cover-image
             img(src=user.coverPicture)
@@ -22,7 +23,7 @@ block mainBody
                         i.fa-solid.fa-camera
         .profile-button-container
             if user._id != loginUser._id
-                a.messageButton(href=`/message/${user._id.toString()}`)
+                a.messageButton(href=`/api/chat/${user._id.toString()}`)
                     i.fa-regular.fa-envelope
                 - const isFollow = loginUser?.following?.includes(user._id.toString());
                 +createFollowBtn(isFollow, user._id)
@@ -32,7 +33,6 @@ block mainBody
             .follower-container
                 - const followers = user?.followers ? user?.followers?.length : '0'
                 - const following = user?.following ? user?.following?.length : '0'
-                - console.log('action: ',follower)
                 a(href=`/users/${user._id}?action=following`)
                     span.following-count #{following}
                     span Following  

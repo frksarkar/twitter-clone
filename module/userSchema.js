@@ -1,7 +1,5 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 const { passwordHash } = require('../util/helper');
-
-const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
 	{
@@ -28,4 +26,4 @@ const userSchema = new Schema(
 
 userSchema.pre('save', passwordHash);
 
-exports.User = mongoose.model('User', userSchema);
+exports.User = model('User', userSchema);

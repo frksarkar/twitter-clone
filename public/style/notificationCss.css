@@ -1,0 +1,24 @@
+.listOfNotification {
+	overflow-y: auto;
+	.notification {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing);
+		padding: var(--spacing);
+		border-bottom: 1px solid var(--extra-light-gray);
+		.imageContainer {
+			width: 40px;
+			height: 40px;
+			img {
+				border-radius: 50%;
+			}
+		}
+		.title {
+			flex: 1;
+		}
+	}
+}
+
+.notification.active{
+    background-color: var(--extra-extra-light-gray);
+}

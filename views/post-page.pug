@@ -1,0 +1,11 @@
+extends main-page.pug
+
+block append header
+    //- link(rel="stylesheet", href="./style/postPage.css")
+block mainBody
+    script.
+        const postId = '!{postId}'
+    .show-result
+
+block script
+    script(src="/js/postPage.js")

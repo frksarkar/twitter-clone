@@ -20,7 +20,9 @@
 	outline: none;
 	text-decoration: none;
 	box-sizing: border-box;
+	list-style: none;
 	font-family: 'Poppins', sans-serif;
+	/* overflow: hidden; */
 }
 
 button {
@@ -56,4 +58,119 @@ img {
 	padding: 1rem;
 	text-align: center;
 	border-bottom: 1px solid var(--extra-light-gray);
+}
+
+.online-active {
+	width: 8px;
+	height: 8px;
+	background: lightgreen;
+	border-radius: 25px;
+	position: absolute;
+	bottom: 0px;
+	right: 0;
+	transform: translate(-5px, -5px);
+}
+
+.center {
+	display: flex;
+	justify-content: center;
+}
+
+.notificationBags {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: var(--red);
+	border-radius: 50%;
+	position: absolute;
+	font-size: 18px;
+	color: wheat;
+	width: 24px;
+	height: 24px;
+	top: 0;
+	right: 0;
+}
+
+.icon > .bags {
+	position: relative;
+	display: flex;
+}
+
+::-webkit-scrollbar {
+	width: 10px;
+}
+
+/* *:hover::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+	transition: all 1s ease;
+
+} */
+
+::-webkit-scrollbar-track {
+	background-color: var(--extra-light-gray);
+	border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: var(--blue-light);
+	border-radius: 25px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background-color: var(--blue);
+}
+
+/* HTML: <div class="loader"></div> */
+.loader-wrapper {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	width: 100%;
+}
+
+.loader {
+	width: 50px;
+	padding: 8px;
+	aspect-ratio: 1;
+	border-radius: 50%;
+	background: var(--blue);
+	--_m: conic-gradient(#0000 10%, #000), linear-gradient(#000 0 0) content-box;
+	-webkit-mask: var(--_m);
+	mask: var(--_m);
+	-webkit-mask-composite: source-out;
+	mask-composite: subtract;
+	animation: l3 1s infinite linear;
+}
+@keyframes l3 {
+	to {
+		transform: rotate(1turn);
+	}
+}
+
+/* typing loader */
+/* HTML: <div class="loader"></div> */
+.typing .typing-loader {
+	width: 30px;
+	aspect-ratio: 2;
+	--_g: no-repeat
+		radial-gradient(circle closest-side, var(--blue-light) 90%, #0000);
+	background: var(--_g) 0% 50%, var(--_g) 50% 50%, var(--_g) 100% 50%;
+	background-size: calc(100% / 3) 50%;
+	animation: l3 1s infinite linear;
+}
+@keyframes l3 {
+	20% {
+		background-position: 0% 0%, 50% 50%, 100% 50%;
+	}
+	40% {
+		background-position: 0% 100%, 50% 0%, 100% 50%;
+	}
+	60% {
+		background-position: 0% 50%, 50% 100%, 100% 0%;
+	}
+	80% {
+		background-position: 0% 50%, 50% 50%, 100% 100%;
+	}
 }

@@ -1,5 +1,6 @@
 .row {
 	display: grid;
+	height: 100%;
 	grid-template-columns: 1fr 2fr 1fr;
 	gap: 1rem;
 }
@@ -43,6 +44,7 @@
 	flex-direction: column;
 	border-right: 1px solid var(--extra-light-gray);
 	border-left: 1px solid var(--extra-light-gray);
+	overflow: hidden;
 }
 
 .main-body-title {

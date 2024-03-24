@@ -26,6 +26,7 @@
 }
 
 #submitPostBtn {
+	height: 100%;
 	padding: 7px 15px;
 	border-radius: 40px;
 	border: none;
@@ -41,6 +42,7 @@
 .main-post-container {
 	display: flex;
 	flex-direction: column;
+	overflow-y: auto;
 }
 
 /* home page post container */
@@ -118,12 +120,15 @@
 
 /* popup window */
 .popup-container,
+.delete-popup-container,
 .pinned-popup-container,
+.changeChatNameContainer,
 .unpinned-popup-container,
-.upload-profile-pic-container,
 .upload-cover-pic-container,
-.delete-popup-container {
-	width: 30%;
+.upload-profile-pic-container {
+	width: 100%;
+	max-width: 25%;
+	min-width: 400px;
 	position: fixed;
 	background-color: white;
 	display: flex;
@@ -131,7 +136,7 @@
 	justify-content: center;
 	border-radius: 5px;
 	box-shadow: 0 0 15px 0 #8080804a;
-	transform: translate(135px, -600px);
+	transform: translateY(-600px);
 	transition: all 0.5s ease;
 	pointer-events: none;
 	z-index: 2;
@@ -152,7 +157,7 @@
 	&.active {
 		transition: all 0.5s ease;
 		pointer-events: inherit;
-		transform: translate(135px, 10px);
+		transform: translateY(20px);
 	}
 	.popup-button-container {
 		display: flex;

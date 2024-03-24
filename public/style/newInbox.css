@@ -36,7 +36,7 @@
 	button {
 		background-color: var(--blue-light);
 		color: var(--black);
-		padding: 10px 2rem;
+		padding: 10px 1rem;
 		border-radius: 50px;
 		&:disabled {
 			color: var(--dark-gray);

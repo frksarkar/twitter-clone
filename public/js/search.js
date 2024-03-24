@@ -13,13 +13,19 @@ search.addEventListener('keyup', (e) => {
 	}, 500);
 });
 
+//	follow functionality
+document.addEventListener('click', (event) => {
+	const followBtn = event.target.closest('.followBtn');
+	followBtn ? follow(followBtn) : null;
+});
+
 async function searchResult(tab, value) {
 	let posts;
 	let htmlMarkup = '';
 	if (tab === 'posts') {
-		posts = await getPosts('/api/posts', value);
+		posts = await requestAPI(`/api/posts?search=${value}`);
 	} else {
-		posts = await getPosts('/users', value);
+		posts = await requestAPI(`/users?search=${value}`);
 	}
 
 	if (!posts.length) {
@@ -32,57 +38,37 @@ async function searchResult(tab, value) {
 		if (tab === 'posts') {
 			htmlMarkup += createHtml(post);
 		} else {
-			htmlMarkup += createUserHtml(post);
+			htmlMarkup += createSearchUserHtml(post);
 		}
 	});
 	document.querySelector('.search-contain').innerHTML = htmlMarkup;
 }
 
-async function getPosts(url, value) {
-	const postData = await fetch(`${url}?search=${value}`, {
-		method: 'GET',
-	});
-
-	return postData.json();
+function createSearchUserHtml(searchUser) {
+	const followBtn = followBtnHtml(searchUser);
+	searchUser.followBtn = followBtn;
+	return FollowHtmlMarkup(searchUser);
 }
 
-function createUserHtml(searchUser) {
-	const isFollow = searchUser.followers.includes(user._id)
-		? 'Following'
-		: 'Follow';
+function FollowHtmlMarkup({ profilePicture, userName, followBtn }) {
 	return `<div class="follow-container">
-				<div class="img-container"><img src="${searchUser.profilePicture}" alt="" srcset=""></div>
-					<a href="/profile/${searchUser.userName}" class="info">
-						<h3>${searchUser.userName}</h3>
-						<span>${searchUser.userName}</span>
+				<div class="img-container"><img src="${profilePicture}" alt="" srcset=""></div>
+					<a href="/profile/${userName}" class="info">
+						<h3>${userName}</h3>
+						<span>${userName}</span>
 					</a>
 				<div class="follow-btn-container">
-					<button class="followBtn following" data-userid="${searchUser._id}">${isFollow}</button>
+					${followBtn}
 				</div>
 			</div>`;
 }
 
-//	follow functionality
-document.addEventListener('click', (event) => {
-	const followBtn = event.target.closest('.followBtn');
+function followBtnHtml(searchUserObj) {
+	const isCurrentUserFollowing = searchUserObj.followers.includes(user._id);
+	const buttonText = isCurrentUserFollowing ? 'Following' : 'Follow';
+	const isDifferentUser = searchUserObj._id != user._id;
 
-	followBtn ? follow(followBtn) : null;
-});
-
-async function follow(btn) {
-	const userId = btn.dataset.userid;
-	const request = await fetch(`/users/${userId}/follow`, {
-		method: 'PUT',
-	});
-
-	const result = await request.json();
-	const followCount = document.querySelector('.followers-count');
-
-	if (result.action === 'Follow') {
-		btn.innerText = 'Follow';
-		btn.classList.remove('following');
-	} else {
-		btn.innerText = 'Following';
-		btn.classList.add('following');
-	}
+	return isDifferentUser
+		? `<button class="followBtn following" data-userid="${searchUserObj._id}">${buttonText}</button>`
+		: '';
 }

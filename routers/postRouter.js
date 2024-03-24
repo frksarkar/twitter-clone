@@ -1,20 +1,12 @@
 const express = require('express');
-const post = require('../controller/postController');
 
-const postRouter = express.Router();
+const { payloadHandler } = require('../middleware/payload');
 
-postRouter.post('/', post.createPost);
+const routers = express.Router();
 
-postRouter.get('/', post.getAllPosts);
+routers.get('/:id', payloadHandler('Post'), async (req, res, next) => {
+	const postId = req.params.id;
+	res.render('post-page', { postId });
+});
 
-postRouter.get('/:id', post.getPost);
-
-postRouter.delete('/:id', post.deletePost);
-
-postRouter.post('/:id/tweet', post.retweetPost);
-
-postRouter.put('/:id/like', post.updateLike);
-
-postRouter.put('/:id/pinned', post.pinnedPost);
-
-exports.postRouter = postRouter;
+exports.postRouter = routers;

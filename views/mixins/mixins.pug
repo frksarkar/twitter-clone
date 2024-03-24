@@ -1,12 +1,12 @@
 link(rel="stylesheet", href="/style/mixins.css")
 
 
-mixin postCreate(btn)
+mixin postCreate(btn, className)
     .postMainContainer
         .imgContainer 
             img(src=loginUser.profilePicture, alt="User's profile picture", srcset="")
         .textareaContainer 
-            textarea#postbox(placeholder="What's happening?")
+            textarea#postbox(class=className placeholder="What's happening?")
             if btn
                 .buttonContainer
                     button#submitPostBtn(disabled) Post
@@ -55,7 +55,6 @@ mixin unpinnedPostPopupWindow()
             button.btn-close-popup Close
             button#unpinned-post-btn(type="submit") UnPinned
 
-
 mixin uploadProfileImage()
     .upload-profile-pic-container
         .popup-title
@@ -92,25 +91,76 @@ mixin createTab(name, activeTab, href)
     a(class=className, href=href)
         span #{name}
 
+mixin createChatImg(data, loginUserId)
+    if data.isGroupChat
+        -   let index = 0;
+        -   let imageShow = 2;
+        -   let remainingUser = data.users.length - imageShow
+        each val in data.users
+            if index === imageShow
+                -   return
+            if val._id != loginUserId
+                img(src=val.profilePicture, alt="chat-image")
+            -   index++
+        .remainingUser
+            h4 +#{remainingUser}
+    else
+        if(data.users[0]._id != loginUserId)
+            img(src=data.users[0].profilePicture, alt="chat-image")
+        else
+            img(src=data.users[1].profilePicture, alt="chat-image")
+
+mixin createChatName(data, loginUserId)
+    if data.isGroupChat
+        each val, i in data.users
+            if val._id != loginUserId
+                if i == (data.users.length - 2)
+                    h3 #{val.userName}
+                else
+                    h3 #{val.userName},
+    else
+        if  data.users[0]._id != loginUserId
+            h3 #{data.users[0].userName}
+        else
+            h3 #{data.users[1].userName}
+
+mixin changeChatName(data)
+    .changeChatNameContainer
+        .popup-title
+            h4 Change Chat Name
+            button.btn-close-popup 
+                i.fa-solid.fa-xmark
+        .textareaContainer
+            input#chatNameInput(type="text", autofocus='', value=data.chatName)
+        .popup-button-container
+            button.btn-close-popup Close
+            button#change-name-btn(type="submit") Apply
+       
+
+
 //- profile page stricture
 mixin profileSection()
-    +popupWindow()
-    +deletePopupWindow()
-    +uploadProfileImage()
-    +uploadCoverImage()
-    +pinnedPostPopupWindow()
-    +unpinnedPostPopupWindow()
+    .center
+        +popupWindow()
+        +deletePopupWindow()
+        +uploadProfileImage()
+        +uploadCoverImage()
+        +pinnedPostPopupWindow()
+        +unpinnedPostPopupWindow()
+
 
 mixin homeSection()
-    +postCreate(true)
-    +popupWindow()
-    +deletePopupWindow()
-    +pinnedPostPopupWindow()
-    +unpinnedPostPopupWindow()
+    //- +postCreate(true)
+    .center
+        +popupWindow()
+        +deletePopupWindow()
+        +pinnedPostPopupWindow()
+        +unpinnedPostPopupWindow()
 
 
 mixin searchSection()
-    +popupWindow()
-    +deletePopupWindow()
-    +pinnedPostPopupWindow()
-    +unpinnedPostPopupWindow()
+    .center
+        +popupWindow()
+        +deletePopupWindow()
+        +pinnedPostPopupWindow()
+        +unpinnedPostPopupWindow()

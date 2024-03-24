@@ -1,0 +1,36 @@
+extends main-page.pug
+
+block append header
+    link(rel="stylesheet", href="/style/chat.css")
+    
+block mainBody
+    script.
+        const chatId = "!{messages._id}"
+    .center
+        +changeChatName(messages)
+    .chat-container
+        .chat-box
+            .chat-header
+                .chat-name-container
+                    .chat-img
+                        +createChatImg(messages, loginUser._id)
+                    .chat-title
+                        if messages.chatName
+                            h3 #{messages.chatName}
+                        else
+                            +createChatName(messages, loginUser._id)
+            .chat-messages
+                .loader-wrapper
+                    .loader
+                ul.message-box(style="display:none")
+            .typing-loader-container
+                .typing-loader
+            .chat-footer
+                textarea#chatMessageInput(name="messages text box", placeholder="type a messages")
+                button.message-send(type="submit") 
+                    i.fa-solid.fa-paper-plane
+   
+block script
+    script(src="/js/chat.js")
+
+

@@ -1,15 +1,16 @@
 .icon 
-    - console.log(profileUser)
     a(href="/") 
         i.active.fa-brands.fa-twitter
     a(href="/") 
         i.fa-solid.fa-house
     a(href="/search") 
         i.fa-solid.fa-magnifying-glass
-    a(href="/notification") 
+    a.bags(href="/notifications") 
         i.fa-regular.fa-bell
-    a(href="/messages") 
+        span#notificationsBegs.notificationBags(style="visibility:hidden") 1
+    a.bags(href="/messages") 
         i.fa-regular.fa-envelope
+        span#messagesBegs.notificationBags(style="visibility:hidden") 2
     a(href=`/profile/${userName}`) 
         i.fa-regular.fa-user
     a(href="/logout") 
