@@ -1,0 +1,41 @@
+.img {
+	width: 45px;
+	height: 45px;
+	display: flex;
+	align-items: center;
+	position: relative;
+	justify-content: center;
+}
+
+.group > img {
+	width: 30px !important;
+	height: 30px !important;
+	&:first-child {
+		top: 0;
+		right: 0;
+	}
+}
+
+.img > img {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	position: absolute;
+	border: 3px solid white;
+	bottom: 0;
+}
+
+.message-container {
+	display: flex;
+	gap: var(--spacing);
+	border-bottom: 1px solid var(--extra-light-gray);
+	padding: var(--spacing);
+	align-items: center;
+	&:hover {
+		background-color: var(--extra-extra-light-gray);
+	}
+}
+
+.chat-body {
+	flex: 1;
+}
