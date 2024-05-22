@@ -2,8 +2,8 @@
     <h1>Twitter Clone Project</h1>
     <h2>Overview</h2>
     <p>
-        This project is a full-stack Twitter clone application built using Node.js and Express. It incorporates various technologies and tools to provide a comprehensive social media experience, including user authentication, data storage, real-time updates,
-        and a user-friendly interface.
+        This project is a full-stack Twitter clone application built using Node.js and Express. It incorporates various technologies and tools to provide a comprehensive social media experience, including user authentication, data storage,
+        real-time updates, and a user-friendly interface.
     </p>
     <h2>Features</h2>
     <ul>
@@ -80,12 +80,8 @@
         <li><code>routes</code>: Contains route definitions for the application.</li>
     </ul>
     <h2>License</h2>
-    <p>This project is licensed under the ISC License - see the <a target="_new" rel="noreferrer" href="LICENSE">LICENSE</a> file for details.</p>
+    <p>This project is licensed under the ISC License - see the <a rel="noreferrer" href="LICENSE">LICENSE</a> file for details.</p>
     <h2>Author</h2>
     <p><strong>Faruk Sarkar</strong></p>
     <p>Feel free to contribute to the project by opening issues or submitting pull requests. For significant changes, please open an issue first to discuss what you would like to change.</p>
-    <hr />
-    <p>
-        This documentation provides an overview of the Twitter clone project, detailing its features, installation steps, dependencies, and structure. This should help new developers quickly understand the project's purpose and how to set it up.
-    </p>
 </div>
