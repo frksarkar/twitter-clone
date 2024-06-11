@@ -11,7 +11,7 @@
         <li><a href="#Installation">Installation</a></li>
         <li><a href="#Dependencies">Dependencies</a></li>
         <li><a href="#Development Dependencies">Development Dependencies</a></li>
-        <li><a href="#Project Structure">Project Structure</a></li>
+        <li><a href="#Project-Structure">Project Structure</a></li>
         <li><a href="#License">License</a></li>
         <li><a href="#Author">Author</a></li>
     </ul>
