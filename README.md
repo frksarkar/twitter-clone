@@ -5,6 +5,16 @@
         This project is a full-stack Twitter clone application built using Node.js and Express. It incorporates various technologies and tools to provide a comprehensive social media experience, including user authentication, data storage,
         real-time updates, and a user-friendly interface.
     </p>
+    <h2>Table of Contents</h2>
+    <ul>
+        <li><a href="#Features">Features</a></li>
+        <li><a href="#Installation">Installation</a></li>
+        <li><a href="#Dependencies">Dependencies</a></li>
+        <li><a href="#Development Dependencies">Development Dependencies</a></li>
+        <li><a href="#Project Structure">Project Structure</a></li>
+        <li><a href="#License">License</a></li>
+        <li><a href="#Author">Author</a></li>
+    </ul>
     <h2>Features</h2>
     <ul>
         <li><strong>User Authentication</strong>: Secure user registration and login using bcrypt for password hashing.</li>
