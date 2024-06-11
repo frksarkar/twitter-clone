@@ -68,21 +68,45 @@
         <li><strong>nodemon</strong>: Tool that helps develop node.js based applications by automatically restarting the node application when file changes in the directory are detected.</li>
     </ul>
     <h2>Project Structure</h2>
-    <pre><code>.
-├── <span>package</span>.json
+    <pre><code>
+
+        .
+├── package.json
+├── package-lock.json
 ├── server.js
 ├── .env
-├── <span>public</span>
+├── .gitignore
+├── access.log
+├── public
 │   ├── css
 │   ├── js
 │   └── images
 ├── views
 │   ├── index.pug
 │   └── layout.pug
-└── routes
-    ├── index.js
-    └── users.js
-</code></pre>
+├── routes
+│   ├── index.js
+│   └── users.js
+├── app
+│   ├── config
+│   │   └── database.js
+│   ├── controller
+│   │   ├── authController.js
+│   │   ├── tweetController.js
+│   │   └── userController.js
+│   ├── middleware
+│   │   ├── authMiddleware.js
+│   │   └── errorMiddleware.js
+│   ├── module
+│   │   ├── tweet.js
+│   │   └── user.js
+│   ├── util
+│   │   └── helper.js
+└── app_structure.text
+
+
+        
+    </code></pre>
     <ul>
         <li><code>server.js</code>: Main entry point for the application.</li>
         <li><code>public</code>: Contains static assets such as CSS, JavaScript, and images.</li>
