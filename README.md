@@ -103,7 +103,7 @@
 └── app_structure.text
 </code></pre>
     <ul>
-        <li><code>server.js</code>: Main entry point for the application.</li>
+        <li><code>app.js</code>: Main entry point for the application.</li>
         <li><code>public</code>: Contains static assets such as CSS, JavaScript, and images.</li>
         <li><code>views</code>: Contains Pug templates for rendering HTML.</li>
         <li><code>routes</code>: Contains route definitions for the application.</li>
