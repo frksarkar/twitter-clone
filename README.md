@@ -12,7 +12,6 @@
         <li><a href="#Dependencies">Dependencies</a></li>
         <li><a href="#Development-Dependencies">Development Dependencies</a></li>
         <li><a href="#Project-Structure">Project Structure</a></li>
-        <li><a href="#License">License</a></li>
         <li><a href="#Author">Author</a></li>
     </ul>
     <h2>Features</h2>
@@ -108,8 +107,6 @@
         <li><code>views</code>: Contains Pug templates for rendering HTML.</li>
         <li><code>routes</code>: Contains route definitions for the application.</li>
     </ul>
-    <h2>License</h2>
-    <p>This project is licensed under the ISC License - see the <a rel="noreferrer" href="LICENSE">LICENSE</a> file for details.</p>
     <h2>Author</h2>
     <p><strong>Faruk Sarkar</strong></p>
     <p>Feel free to contribute to the project by opening issues or submitting pull requests. For significant changes, please open an issue first to discuss what you would like to change.</p>
