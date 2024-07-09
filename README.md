@@ -31,7 +31,7 @@
     <ol>
         <li>
             <p><strong>Clone the repository</strong>:</p>
-            <pre><code >git <span>clone</span> https://github.com/yourusername/twitter-clone.git<span>cd</span> twitter-clone</code></pre>
+            <pre><code >git <span>clone</span> https://github.com/frksarkar/twitter-clone.git<span>cd</span> twitter-clone</code></pre>
         </li>
         <li>
             <p><strong>Install dependencies</strong>:</p>
