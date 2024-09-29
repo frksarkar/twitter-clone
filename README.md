@@ -124,4 +124,3 @@ The project relies on several npm packages. Below is a summary of the main depen
 **Faruk Sarkar**
 
 Feel free to contribute to the project by opening issues or submitting pull requests. For significant changes, please open an issue first to discuss what you would like to change.
-
