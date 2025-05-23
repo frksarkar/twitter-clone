@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased scroll-smooth;
+  }
+
+  body {
+    @apply bg-background-light text-text-primary-light dark:bg-background-dark dark:text-text-primary-dark;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  /* Custom scrollbar for Webkit browsers */
+  ::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-secondary-50 dark:bg-secondary-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-secondary-300 dark:bg-secondary-700 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-secondary-400 dark:bg-secondary-600;
+  }
+}
+
+@layer components {
+  .container-custom {
+    @apply mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500;
+  }
+
+  .btn-secondary {
+    @apply btn bg-white text-text-primary-light border border-secondary-200 hover:bg-secondary-50 focus:ring-secondary-200 dark:bg-secondary-800 dark:text-text-primary-dark dark:border-secondary-700 dark:hover:bg-secondary-700 dark:focus:ring-secondary-700;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-text-primary-light hover:bg-secondary-50 focus:ring-secondary-200 dark:text-text-primary-dark dark:hover:bg-secondary-800 dark:focus:ring-secondary-700;
+  }
+
+  .input {
+    @apply w-full rounded-md border border-secondary-200 bg-white px-4 py-2 text-text-primary-light shadow-sm transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 dark:border-secondary-700 dark:bg-secondary-800 dark:text-text-primary-dark dark:focus:border-primary-500;
+  }
+}
+
+/* Animation classes */
+.animate-enter {
+  @apply animate-fade-in;
+}
+
+.animate-slide-up {
+  @apply transition-transform duration-300 ease-out transform translate-y-4 opacity-0;
+}
+
+.animate-slide-down {
+  @apply transition-transform duration-300 ease-out transform -translate-y-4 opacity-0;
+}
