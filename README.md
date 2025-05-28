@@ -10,8 +10,6 @@ This project is a full-stack **Twitter clone** application built with **Node.js*
 -   [Installation](#installation)
 -   [Dependencies](#dependencies)
 -   [Development Dependencies](#development-dependencies)
--   [Project Structure](#project-structure)
--   [Author](#author)
 
 ## Features
 
