@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { Notification } = require('../module/notificationSchema');
+const { Notification } = require('../model/notificationSchema');
 
 exports.throwError = (message, statusCode) => {
 	const error = new Error(message);
@@ -13,13 +13,15 @@ exports.passwordHash = async function (next) {
 	next();
 };
 
-exports.notify = function (sender, receiver, type, entry, isRemoved) {
+exports.notify = function (sender, receiver, type, text, entry, isRemoved) {
 	const notification = {
-		userForm: sender,
+		userFrom: sender,
 		userTo: receiver,
-		notificationType: type,
-		entryId: entry,
+		targetId: entry,
+		type,
+		text: text || '',
 	};
-	const action = isRemoved ? 'remove' : 'insert';
-	return Notification[action + 'Notification'](notification);
+
+	const action = isRemoved ? 'removeNotification' : 'insertNotification';
+	return Notification[action](notification);
 };
