@@ -1,9 +1,38 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TweetList from '../components/tweet/TweetList';
 import TweetComposer from '../components/tweet/TweetComposer';
-
+import axios from 'axios';
+import useAuthStore from '../stores/useAuth';
+import { useAuth } from '../contexts/AuthContext';
+import usePostStore from '../stores/usePostStore';
 const HomePage = () => {
+	const { logout } = useAuth();
 	const [activeTab, setActiveTab] = useState<'for-you' | 'following'>('for-you');
+	const { getToken } = useAuthStore();
+	const { setPosts } = usePostStore();
+
+	// Effect to fetch initial data or perform setup
+	useEffect(() => {
+		axios({
+			method: 'get',
+			url: 'http://localhost:3000/api/posts',
+			headers: {
+				Authorization: `Bearer ${getToken()}`,
+			},
+			params: {
+				isFollowing: activeTab === 'following',
+			},
+		})
+			.then((response) => {
+				const data = response.data;
+
+				setPosts(data.posts);
+			})
+			.catch((error) => {
+				console.error(error);
+				logout();
+			});
+	}, [activeTab]);
 
 	return (
 		<div className="min-h-screen animate-enter">
@@ -46,7 +75,7 @@ const HomePage = () => {
 			<TweetComposer />
 
 			{/* Tweet Feed */}
-			<TweetList />
+			<TweetList activeTab={activeTab} />
 		</div>
 	);
 };
