@@ -4,55 +4,73 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
+require('dotenv').config();
 
-const { loginRouter } = require('../routers/loginRouter');
-const { registerRouter } = require('../routers/registerRouter');
-const { errorHandler } = require('../middleware/errorHandler');
-const { postsRouter } = require('../routers/postsRouter');
-const { isLogin } = require('../middleware/authHandler');
-const { homeRouter } = require('../routers/homeRouter');
-const { profileRouter } = require('../routers/profileRouter');
-const { logoutRouter } = require('../routers/logoutRouter');
-const { userRouter } = require('../routers/userRouter');
-const { searchRouter } = require('../routers/searchRouter');
-const { inboxRouter } = require('../routers/inboxRouter');
-const { chatRouter } = require('../routers/chatRouter');
-const { notFound } = require('../middleware/notFoundHandler');
-const { messageRouter } = require('../routers/messageRouter');
-const { notificationRouter } = require('../routers/notificationRouter');
-const { postRouter } = require('../routers/postRouter');
+const {
+	loginRouter,
+	registerRouter,
+	postsRouter,
+	homeRouter,
+	profileRouter,
+	logoutRouter,
+	userRouter,
+	searchRouter,
+	inboxRouter,
+	chatRouter,
+	messageRouter,
+	notificationRouter,
+	postRouter,
+	swaggerRouter,
+	bookmarkRouter,
+	repliesRouter,
+} = require('../routers');
+
+const { errorHandler, notFound, authMiddleware } = require('../middleware');
 
 const app = express();
 
 //	set default values
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(morgan('dev'));
 app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(
 	session({
-		secret: 'secret key',
+		secret: process.env.SESSION_SECRET || 'secret key',
 		resave: false,
 		saveUninitialized: false,
-		cookie: { maxAge: 3600000 },
+		cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 1 day,
 	})
 );
 
-//	routers
-app.use('/api/posts', isLogin, postsRouter);
-app.use('/api/message', isLogin, messageRouter);
-app.use('/api/chat', isLogin, chatRouter);
+// Swagger documentation route
+app.use('/api-docs', swaggerRouter);
+
+// Routers with authentication middleware
+app.use('/api/posts', authMiddleware, postsRouter);
+app.use('/api/messages', authMiddleware, messageRouter);
+app.use('/api/chats', authMiddleware, chatRouter);
+app.use('/api/bookmarks', authMiddleware, bookmarkRouter);
+app.use('/api/replies', authMiddleware, repliesRouter);
+
+// Public routes
 app.use('/login', loginRouter);
-app.use('/logout', isLogin, logoutRouter);
 app.use('/register', registerRouter);
-app.use('/', isLogin, homeRouter);
-app.use('/profile', isLogin, profileRouter);
-app.use('/users', isLogin, userRouter);
-app.use('/search', isLogin, searchRouter);
-app.use('/messages', isLogin, inboxRouter);
-app.use('/notifications', isLogin, notificationRouter);
-app.use('/post', isLogin, postRouter);
+
+// Authenticated routes
+app.use('/logout', authMiddleware, logoutRouter);
+app.use('/', authMiddleware, homeRouter);
+app.use('/profile', authMiddleware, profileRouter);
+app.use('/users', authMiddleware, userRouter);
+app.use('/search', authMiddleware, searchRouter);
+app.use('/inbox', authMiddleware, inboxRouter);
+app.use('/notifications', authMiddleware, notificationRouter);
+app.use('/posts', authMiddleware, postRouter);
 
 //	not found handlers
 app.use('/:id', notFound);
