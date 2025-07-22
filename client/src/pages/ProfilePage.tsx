@@ -19,7 +19,7 @@ const ProfilePage = () => {
 
 	const [activeTab, setActiveTab] = useState<'tweets' | 'replies' | 'media' | 'likes'>('tweets');
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-	const [profileUser, setProfileUser] = useState(currentUser!);
+	const [profileUser, setProfileUser] = useState<User | null>(null); // Default to current user();
 
 	// Check if this is the current user's profile
 	const isOwnProfile = currentUser?.username === username;
@@ -33,53 +33,89 @@ const ProfilePage = () => {
 	const userMediaTweets = tweets?.filter((tweet) => tweet.media && tweet.media.length > 0);
 
 	useEffect(() => {
-		if (activeTab === 'replies') {
-			axios
-				.get<{ data: ReplyType[]; status: string; message: string }>('http://localhost:3000/api/replies', {
-					headers: {
-						Authorization: `Bearer ${getToken()}`,
-					},
-				})
-				.then((response) => {
-					setReplies(response.data.data);
-				})
-				.catch((error) => {
-					console.error('Error fetching replies:', error);
-					setReplies([]);
-				});
-		} else if (activeTab === 'tweets') {
-			axios
-				.get<{ posts: TweetType[]; status: string; message: string }>('http://localhost:3000/api/posts', {
-					params: {
-						isAuthor: true,
-					},
-					headers: {
-						Authorization: `Bearer ${getToken()}`,
-					},
-				})
-				.then((response) => {
-					setTweets(response.data.posts);
-				})
-				.catch((error) => {
-					console.error('Error fetching tweets:', error);
-					setTweets([]);
-				});
-		} else if (activeTab === 'likes') {
-			axios
-				.get<{ likes: User[]; status: string; message: string }>('http://localhost:3000/users/likes', {
-					headers: {
-						Authorization: `Bearer ${getToken()}`,
-					},
-				})
-				.then((response) => {
-					setLikes(response.data.likes);
-				})
-				.catch((error) => {
-					console.error('Error fetching likes:', error);
-					setLikes([]);
-				});
-		}
-	}, [activeTab]);
+		const fetchProfileData = async () => {
+			if (!isOwnProfile) {
+				try {
+					const { data } = await axios.get<{ data: User; status: string; message: string }>(
+						'http://localhost:3000/users',
+						{
+							headers: {
+								Authorization: `Bearer ${getToken()}`,
+							},
+							params: {
+								username: username,
+							},
+						}
+					);
+					setProfileUser(data.data || {});
+				} catch (error) {
+					console.error('Error fetching profile data:', error);
+					if (!isOwnProfile) navigate('/');
+				}
+			} else {
+				setProfileUser(currentUser);
+			}
+		};
+		fetchProfileData();
+	}, [username, isOwnProfile]);
+
+	useEffect(() => {
+		if (!profileUser) return;
+		const fetchData = async () => {
+			try {
+				if (activeTab === 'replies') {
+					const { data } = await axios.get<{ data: ReplyType[]; status: string; message: string }>(
+						'http://localhost:3000/api/replies',
+						{
+							headers: {
+								Authorization: `Bearer ${getToken()}`,
+							},
+							params: {
+								userId: profileUser?._id,
+							},
+						}
+					);
+					setReplies(data.data);
+				} else if (activeTab === 'tweets') {
+					const { data } = await axios.get<{ posts: TweetType[]; status: string; message: string }>(
+						'http://localhost:3000/api/posts',
+						{
+							params: {
+								isAuthor: isOwnProfile,
+								userId: profileUser?._id,
+							},
+							headers: {
+								Authorization: `Bearer ${getToken()}`,
+							},
+						}
+					);
+					setTweets(data.posts);
+					console.log('tweets set');
+				} else if (activeTab === 'likes') {
+					const { data } = await axios.get<{ likes: User[]; status: string; message: string }>(
+						'http://localhost:3000/users/likes',
+						{
+							headers: {
+								Authorization: `Bearer ${getToken()}`,
+							},
+							params: {
+								userId: profileUser?._id,
+							},
+						}
+					);
+					setLikes(data.likes);
+				}
+			} catch (error) {
+				console.error('Error fetching data:', error);
+				if (!isOwnProfile) navigate('/');
+				if (activeTab === 'replies') setReplies([]);
+				else if (activeTab === 'tweets') setTweets([]);
+				else if (activeTab === 'likes') setLikes([]);
+			}
+		};
+
+		fetchData();
+	}, [activeTab, profileUser]);
 
 	const handleLike = (id: string) => {
 		// setTweets(
@@ -150,7 +186,7 @@ const ProfilePage = () => {
 		// }));
 	};
 
-	return (
+	return profileUser ? (
 		<div className="min-h-screen animate-enter">
 			{/* Header */}
 			<header className="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-secondary-100 dark:border-secondary-800 p-4 flex items-center">
@@ -454,6 +490,15 @@ const ProfilePage = () => {
 				onClose={() => setIsEditModalOpen(false)}
 				onSave={handleProfileSave}
 			/>
+		</div>
+	) : (
+		<div className="min-h-screen flex items-center justify-center">
+			<div className="w-full max-w-md">
+				<h2 className="text-2xl font-bold mb-2">User not found</h2>
+				<p className="text-text-secondary-light dark:text-text-secondary-dark">
+					The user you are looking for does not exist.
+				</p>
+			</div>
 		</div>
 	);
 };
