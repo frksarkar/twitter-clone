@@ -1,18 +1,22 @@
 import { NavLink, Link } from 'react-router-dom';
-import { Home, Search, Bell, Mail, Bookmark, User, Settings, MoreHorizontal, Twitter } from 'lucide-react';
+import { Home, Search, Bell, Mail, Bookmark, User, Settings, LogOut, MoreHorizontal, Twitter } from 'lucide-react';
 import { useTheme } from '../../hooks/useTheme';
+import { useAuth } from '../../contexts/AuthContext';
 import { cn } from '../../utils/cn';
+import useNotificationStore from '../../stores/useNotificationStore';
 
 const Sidebar = () => {
 	const { toggleTheme } = useTheme();
+	const { user, logout } = useAuth();
+	const { notificationCount, messageCount } = useNotificationStore();
 
 	const navItems = [
 		{ to: '/', icon: Home, label: 'Home' },
 		{ to: '/explore', icon: Search, label: 'Explore' },
-		{ to: '/notifications', icon: Bell, label: 'Notifications' },
-		{ to: '/messages', icon: Mail, label: 'Messages' },
+		{ to: '/notifications', icon: Bell, label: 'Notifications', badge: notificationCount },
+		{ to: '/messages', icon: Mail, label: 'Messages', badge: messageCount },
 		{ to: '/bookmarks', icon: Bookmark, label: 'Bookmarks' },
-		{ to: '/profile/johndoe', icon: User, label: 'Profile' },
+		{ to: `/profile/${user?.username}`, icon: User, label: 'Profile' },
 	];
 
 	return (
@@ -42,7 +46,15 @@ const Sidebar = () => {
 								)
 							}
 						>
-							<item.icon size={24} className="lg:mr-4" />
+							<div className="flex items-center justify-center lg:justify-start relative">
+								<item.icon size={24} className="lg:mr-4 " />
+								{/* notification badge */}
+								{item.badge! > 0 && (
+									<span className="notification-badge  absolute left-3 bottom-2 inline-flex items-center justify-center w-3 h-3 p-3 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full lg:mr-4">
+										{item.badge}
+									</span>
+								)}
+							</div>
 							<span className="hidden lg:block">{item.label}</span>
 						</NavLink>
 					))}
@@ -69,27 +81,37 @@ const Sidebar = () => {
 			<div className="mt-auto">
 				<button
 					onClick={toggleTheme}
-					className="w-full flex items-center justify-center lg:justify-start p-3 rounded-full hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors"
+					className="w-full flex items-center justify-center lg:justify-start p-3 rounded-full hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors mb-2"
 				>
 					<Settings size={24} className="lg:mr-4" />
 					<span className="hidden lg:block">Toggle Theme</span>
 				</button>
 
-				<div className="flex items-center p-3 mt-2 rounded-full hover:bg-secondary-50 dark:hover:bg-secondary-800 cursor-pointer transition-colors">
-					<img
-						src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=60"
-						alt="Profile"
-						className="w-10 h-10 rounded-full object-cover lg:mr-3"
-					/>
-					<div className="hidden lg:block">
-						<p className="font-bold text-sm">John Doe</p>
-						<p className="text-text-secondary-light dark:text-text-secondary-dark text-sm">@johndoe</p>
+				<button
+					onClick={logout}
+					className="w-full flex items-center justify-center lg:justify-start p-3 rounded-full hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors mb-2"
+				>
+					<LogOut size={24} className="lg:mr-4" />
+					<span className="hidden lg:block">Sign out</span>
+				</button>
+
+				{/* Clickable Profile Section */}
+				<Link
+					to={`/profile/${user?.username}`}
+					className="flex items-center p-3 mt-2 rounded-full hover:bg-secondary-50 dark:hover:bg-secondary-800 cursor-pointer transition-colors group"
+				>
+					<img src={user?.avatar} alt="Profile" className="w-10 h-10 rounded-full object-cover lg:mr-3" />
+					<div className="hidden lg:block flex-1">
+						<p className="font-bold text-sm">{user?.name}</p>
+						<p className="text-text-secondary-light dark:text-text-secondary-dark text-sm">
+							@{user?.username}
+						</p>
 					</div>
 					<MoreHorizontal
 						size={20}
-						className="hidden lg:block ml-auto text-text-secondary-light dark:text-text-secondary-dark"
+						className="hidden lg:block ml-auto text-text-secondary-light dark:text-text-secondary-dark group-hover:text-text-primary-light dark:group-hover:text-text-primary-dark transition-colors"
 					/>
-				</div>
+				</Link>
 			</div>
 		</div>
 	);
