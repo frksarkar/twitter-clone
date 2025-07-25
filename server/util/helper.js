@@ -13,15 +13,14 @@ exports.passwordHash = async function (next) {
 	next();
 };
 
-exports.notify = function (sender, receiver, type, text, entry, isRemoved) {
-	const notification = {
-		userFrom: sender,
-		userTo: receiver,
-		targetId: entry,
-		type,
-		text: text || '',
+exports.notify = async function (senderId, receiverId, notificationType, messageText = '', targetResourceId, isRemoveNotification) {
+	const notificationData = {
+		userFrom: senderId,
+		userTo: receiverId,
+		targetId: targetResourceId,
+		type: notificationType,
+		text: messageText,
 	};
 
-	const action = isRemoved ? 'removeNotification' : 'insertNotification';
-	return Notification[action](notification);
+	isRemoveNotification ? Notification.removeNotification(notificationData) : Notification.insertNotification(notificationData);
 };
