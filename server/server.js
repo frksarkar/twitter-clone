@@ -8,6 +8,4 @@ dbConnection(() => {
 		console.log('app listening on port: ' + PORT);
 	});
 	initializeSocket(server);
-
 });
-
