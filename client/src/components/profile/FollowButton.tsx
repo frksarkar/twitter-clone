@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import axios from 'axios';
+import { authApi } from '../../api';
 
 interface FollowButtonProps {
 	targetUserId: string;
@@ -10,7 +10,7 @@ interface FollowButtonProps {
 }
 
 const FollowButton = ({ targetUserId, targetUsername, isFollowing = false, onFollowChange }: FollowButtonProps) => {
-	const { user, token } = useAuth();
+	const { user } = useAuth();
 	const [following, setFollowing] = useState(isFollowing);
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -22,12 +22,9 @@ const FollowButton = ({ targetUserId, targetUsername, isFollowing = false, onFol
 	const handleFollowToggle = async () => {
 		setIsLoading(true);
 		try {
-			const response = await axios({
+			const response = await authApi({
 				method: 'PUT',
-				url: `http://localhost:3000/users/${targetUserId}/follow`,
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
+				url: `/users/${targetUserId}/follow`,
 			});
 
 			if (response.status !== 200) {
