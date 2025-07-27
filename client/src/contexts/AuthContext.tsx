@@ -1,8 +1,8 @@
-import axios from 'axios';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import useAuthStore from '../stores/useAuth';
 import { User } from '../types/tweet';
 import userStore from '../stores/useAuthUser';
+import { api, authApi } from '../api';
 
 interface AuthContextType {
 	user: User | null;
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		try {
 			setIsLoading(true);
 
-			const loginResponse = await axios.post<{ token: string; message: string }>('http://localhost:3000/login', {
+			const loginResponse = await api.post<{ token: string; message: string }>('/login', {
 				email,
 				password,
 			});
@@ -39,11 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 			setToken(loginResponse.data.token);
 
-			const userResponse = await axios.get<{ status: string; data: User }>('http://localhost:3000/profile', {
-				headers: {
-					Authorization: `Bearer ${loginResponse.data.token}`,
-				},
-			});
+			const userResponse = await authApi.get<{ status: string; data: User }>('/profile');
 
 			if (userResponse.data.status !== 'success') {
 				throw new Error('Failed to fetch user data');
@@ -64,7 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		try {
 			setIsLoading(true);
 
-			const existingUser = await axios.post(`http://localhost:3000/register`, {
+			const existingUser = await api.post(`/register`, {
 				name,
 				username,
 				email,
