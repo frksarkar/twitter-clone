@@ -1,8 +1,4 @@
-const path = require('path');
-
 const express = require('express');
-const bodyParser = require('body-parser');
-const session = require('express-session');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
@@ -32,21 +28,11 @@ const { errorHandler, notFound, authMiddleware } = require('../middleware');
 const app = express();
 
 //	set default values
-app.use(cors());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+
+app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
-app.set('view engine', 'pug');
-app.use(express.static(path.join(__dirname, '..', 'public')));
-app.use(
-	session({
-		secret: process.env.SESSION_SECRET || 'secret key',
-		resave: false,
-		saveUninitialized: false,
-		cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 1 day,
-	})
-);
 
 // Swagger documentation route
 app.use('/api-docs', swaggerRouter);
