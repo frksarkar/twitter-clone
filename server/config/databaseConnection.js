@@ -16,4 +16,4 @@ exports.dbConnection = async function (cb) {
 
 // firebase configuration
 const firebaseApp = initializeApp(firebaseConfig);
-exports.firebaseStorage = getStorage(firebaseApp);
+exports.firebaseStorage = getStorage(firebaseApp, firebaseConfig.firebaseStorageBucket);
