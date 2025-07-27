@@ -22,9 +22,7 @@ exports.getPostReplies = async (req, res, next) => {
 		if (!postId) {
 			return next({ status: 400, message: 'Post id is required' });
 		}
-		const replies = await Reply.find({ parentTweetId: postId })
-			.populate({ path: 'author', select: '_id name username avatar verified' })
-			.exec();
+		const replies = await Reply.find({ parentTweetId: postId }).populate({ path: 'author', select: '_id name username avatar verified' }).exec();
 
 		res.status(200).json({ status: 'success', data: replies });
 	} catch (error) {
@@ -93,8 +91,10 @@ exports.getUserReplies = async (req, res, next) => {
 
 exports.createReply = async (req, res, next) => {
 	const { content, replyToId } = req.body;
+
 	const postId = req.params.id;
 	const authorId = req.user.id;
+	const authorName = req.user.name;
 
 	const session = await mongoose.startSession();
 	session.startTransaction();
@@ -120,9 +120,7 @@ exports.createReply = async (req, res, next) => {
 		};
 
 		if (req.files?.length) {
-			const media = await Promise.all(
-				req.files.map((file) => uploadMedia(file.buffer, file.originalname, authorId, 'posts'))
-			);
+			const media = await Promise.all(req.files.map((file) => uploadMedia(file.buffer, file.originalname, authorId, 'posts')));
 			replyData.media = media;
 		}
 
@@ -135,7 +133,7 @@ exports.createReply = async (req, res, next) => {
 		post.replyTo = (post.replyTo || 0) + 1;
 		await post.save({ session });
 
-		notify(authorId, post.author._id, 'reply', newReply._id, false);
+		notify(authorId, post.author._id, 'reply', `${authorName} replied to your post`, newReply._id, false);
 
 		await session.commitTransaction();
 		session.endSession();
