@@ -6,16 +6,16 @@ import Tweet from '../components/tweet/Tweet';
 import Reply from '../components/tweet/Reply';
 import EditProfileModal from '../components/profile/EditProfileModal';
 import FollowButton from '../components/profile/FollowButton';
-import axios from 'axios';
-import useAuthStore from '../stores/useAuth';
 import { Reply as ReplyType, TweetType, User } from '../types/tweet';
+import useTweetActions from '../hooks/useTweetActions';
+import { authApi } from '../api';
 
 const ProfilePage = () => {
 	const navigate = useNavigate();
 	const { username } = useParams<{ username: string }>();
 	const { user: currentUser, updateProfile } = useAuth();
-	const { getToken } = useAuthStore();
 	if (!currentUser) navigate('/login');
+	const { handleLike: like, toggleArray, handleRetweet: retweet, handleBookmark: bookmark, handleReply, handleReplyLike: replyLike } = useTweetActions();
 
 	const [activeTab, setActiveTab] = useState<'tweets' | 'replies' | 'media' | 'likes'>('tweets');
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -36,17 +36,11 @@ const ProfilePage = () => {
 		const fetchProfileData = async () => {
 			if (!isOwnProfile) {
 				try {
-					const { data } = await axios.get<{ data: User; status: string; message: string }>(
-						'http://localhost:3000/users',
-						{
-							headers: {
-								Authorization: `Bearer ${getToken()}`,
-							},
-							params: {
-								username: username,
-							},
-						}
-					);
+					const { data } = await authApi.get<{ data: User; status: string; message: string }>('/users', {
+						params: {
+							username: username,
+						},
+					});
 					setProfileUser(data.data || {});
 				} catch (error) {
 					console.error('Error fetching profile data:', error);
@@ -64,49 +58,29 @@ const ProfilePage = () => {
 		const fetchData = async () => {
 			try {
 				if (activeTab === 'replies') {
-					const { data } = await axios.get<{ data: ReplyType[]; status: string; message: string }>(
-						'http://localhost:3000/api/replies',
-						{
-							headers: {
-								Authorization: `Bearer ${getToken()}`,
-							},
-							params: {
-								userId: profileUser?._id,
-							},
-						}
-					);
+					const { data } = await authApi.get<{ data: ReplyType[]; status: string; message: string }>('/api/replies', {
+						params: {
+							userId: profileUser?._id,
+						},
+					});
 					setReplies(data.data);
 				} else if (activeTab === 'tweets') {
-					const { data } = await axios.get<{ posts: TweetType[]; status: string; message: string }>(
-						'http://localhost:3000/api/posts',
-						{
-							params: {
-								isAuthor: isOwnProfile,
-								userId: profileUser?._id,
-							},
-							headers: {
-								Authorization: `Bearer ${getToken()}`,
-							},
-						}
-					);
+					const { data } = await authApi.get<{ posts: TweetType[]; status: string; message: string }>('/api/posts', {
+						params: {
+							isAuthor: isOwnProfile,
+							userId: profileUser?._id,
+						},
+					});
 					setTweets(data.posts);
-					console.log('tweets set');
 				} else if (activeTab === 'likes') {
-					const { data } = await axios.get<{ likes: User[]; status: string; message: string }>(
-						'http://localhost:3000/users/likes',
-						{
-							headers: {
-								Authorization: `Bearer ${getToken()}`,
-							},
-							params: {
-								userId: profileUser?._id,
-							},
-						}
-					);
+					const { data } = await authApi.get<{ likes: User[]; status: string; message: string }>('/users/likes', {
+						params: {
+							userId: profileUser?._id,
+						},
+					});
 					setLikes(data.likes);
 				}
 			} catch (error) {
-				console.error('Error fetching data:', error);
 				if (!isOwnProfile) navigate('/');
 				if (activeTab === 'replies') setReplies([]);
 				else if (activeTab === 'tweets') setTweets([]);
@@ -118,34 +92,46 @@ const ProfilePage = () => {
 	}, [activeTab, profileUser]);
 
 	const handleLike = (id: string) => {
-		// setTweets(
-		// 	tweets.map((tweet) =>
-		// 		tweet.id === id
-		// 			? { ...tweet, isLiked: !tweet.isLiked, likes: tweet.isLiked ? tweet.likes - 1 : tweet.likes + 1 }
-		// 			: tweet
-		// 	)
-		// );
+		like(id)
+			.then(() => {
+				const updatedTweets = tweets.map((tweet) => (tweet._id === id ? { ...tweet, likedBy: toggleArray(tweet.likedBy, currentUser?._id!) } : tweet));
+				setTweets(updatedTweets);
+			})
+			.catch((error) => {
+				console.error('Error liking tweet:', error);
+			});
 	};
 
 	const handleRetweet = (id: string) => {
-		// setTweets(
-		// 	tweets.map((tweet) =>
-		// 		tweet.id === id
-		// 			? {
-		// 					...tweet,
-		// 					isRetweeted: !tweet.isRetweeted,
-		// 					retweets: tweet.isRetweeted ? tweet.retweets - 1 : tweet.retweets + 1,
-		// 			  }
-		// 			: tweet
-		// 	)
-		// );
+		retweet(id)
+			.then(() => {
+				const updatedTweets = tweets.map((tweet) => (tweet._id === id ? { ...tweet, retweetedBy: toggleArray(tweet.retweetedBy, currentUser?._id!) } : tweet));
+				setTweets(updatedTweets);
+			})
+			.catch((error) => {
+				alert(`Error retweeting: ${error.response?.data?.message || 'An error occurred'}`);
+			});
 	};
 
 	const handleBookmark = (id: string) => {
-		// setTweets(tweets.map((tweet) => (tweet.id === id ? { ...tweet, isBookmarked: !tweet.isBookmarked } : tweet)));
+		bookmark(id)
+			.then(() => {
+				const updatedBookmarks = toggleArray(currentUser?.bookmarks || [], id);
+				updateProfile({ ...currentUser, bookmarks: updatedBookmarks });
+			})
+			.catch((error) => {
+				console.error('Error bookmarking tweet:', error);
+			});
 	};
 
 	const handleReplyLike = (id: string) => {
+		replyLike(id)
+			.then(() => {
+				setReplies(replies.map((reply) => (reply._id === id ? { ...reply, likes: toggleArray(reply.likes, currentUser?._id!) } : reply)));
+			})
+			.catch((error) => {
+				alert('Error liking reply: ' + (error.response?.data?.message || 'An error occurred'));
+			});
 		// setReplies(
 		// 	replies.map((reply) =>
 		// 		reply.id === id
@@ -161,12 +147,8 @@ const ProfilePage = () => {
 			for (const key in profileData) {
 				form.append(key, profileData[key]);
 			}
-			axios
-				.put('http://localhost:3000/users/update', form, {
-					headers: {
-						Authorization: `Bearer ${getToken()}`,
-					},
-				})
+			authApi
+				.put('/users/update', form)
 				.then((response) => {
 					if (response.data.status !== 'success') return;
 					updateProfile(response.data.data);
@@ -180,10 +162,24 @@ const ProfilePage = () => {
 	};
 
 	const handleFollowChange = (isFollowing: boolean) => {
-		// setProfileUser((prev) => ({
-		// 	...prev,
-		// 	followers: isFollowing ? (prev.followers || 0) + 1 : Math.max((prev.followers || 0) - 1, 0),
-		// }));
+		// extract current user profile following array
+		const followers = profileUser?.followers || [];
+
+		if (!currentUser) return;
+		// auth user following array update
+		const following = currentUser?.following || [];
+		updateProfile({
+			following: isFollowing ? [...following, currentUser?._id] : following.filter((id) => id !== currentUser?._id),
+		});
+
+		// profile user followers array update
+		setProfileUser(
+			(prev) =>
+				({
+					...prev,
+					followers: isFollowing ? [...followers, currentUser?._id!] : followers.filter((id) => id !== currentUser?._id!),
+				} as User)
+		);
 	};
 
 	return profileUser ? (
@@ -195,9 +191,7 @@ const ProfilePage = () => {
 				</Link>
 				<div>
 					<h1 className="font-bold text-xl">{profileUser.name}</h1>
-					<p className="text-text-secondary-light dark:text-text-secondary-dark text-sm">
-						{tweets.length} Tweets
-					</p>
+					<p className="text-text-secondary-light dark:text-text-secondary-dark text-sm">{tweets.length} Tweets</p>
 				</div>
 			</header>
 
@@ -232,11 +226,12 @@ const ProfilePage = () => {
 								Edit profile
 							</button>
 						) : (
-							<div className="group">
+							<div className="group-hover">
 								<FollowButton
 									targetUserId={profileUser._id}
 									targetUsername={profileUser.username}
 									onFollowChange={handleFollowChange}
+									isFollowing={profileUser.followers?.includes(currentUser?._id!)}
 								/>
 							</div>
 						)}
@@ -256,9 +251,7 @@ const ProfilePage = () => {
 								</svg>
 							)}
 						</div>
-						<p className="text-text-secondary-light dark:text-text-secondary-dark">
-							@{profileUser.username}
-						</p>
+						<p className="text-text-secondary-light dark:text-text-secondary-dark">@{profileUser.username}</p>
 
 						{profileUser.bio && <p className="mt-3">{profileUser.bio}</p>}
 
@@ -272,12 +265,7 @@ const ProfilePage = () => {
 							{profileUser.website && (
 								<div className="flex items-center mr-4 mb-2">
 									<LinkIcon size={18} className="mr-1" />
-									<a
-										href={`https://${profileUser.website}`}
-										target="_blank"
-										rel="noreferrer"
-										className="text-primary-500 hover:underline"
-									>
+									<a href={`https://${profileUser.website}`} target="_blank" rel="noreferrer" className="text-primary-500 hover:underline">
 										{profileUser.website}
 									</a>
 								</div>
@@ -291,15 +279,11 @@ const ProfilePage = () => {
 						<div className="flex mt-3">
 							<Link to={`/profile/${profileUser.username}/following`} className="mr-4 hover:underline">
 								<span className="font-bold">{profileUser.following?.length || 0}</span>{' '}
-								<span className="text-text-secondary-light dark:text-text-secondary-dark">
-									Following
-								</span>
+								<span className="text-text-secondary-light dark:text-text-secondary-dark">Following</span>
 							</Link>
 							<Link to={`/profile/${profileUser.username}/followers`} className="hover:underline">
 								<span className="font-bold">{profileUser.followers?.length || 0}</span>{' '}
-								<span className="text-text-secondary-light dark:text-text-secondary-dark">
-									Followers
-								</span>
+								<span className="text-text-secondary-light dark:text-text-secondary-dark">Followers</span>
 							</Link>
 						</div>
 					</div>
@@ -310,54 +294,38 @@ const ProfilePage = () => {
 					<button
 						onClick={() => setActiveTab('tweets')}
 						className={`flex-1 py-4 text-center font-medium relative ${
-							activeTab === 'tweets'
-								? 'font-bold'
-								: 'text-text-secondary-light dark:text-text-secondary-dark'
+							activeTab === 'tweets' ? 'font-bold' : 'text-text-secondary-light dark:text-text-secondary-dark'
 						}`}
 					>
 						Tweets
-						{activeTab === 'tweets' && (
-							<div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-primary-500 rounded-full" />
-						)}
+						{activeTab === 'tweets' && <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-primary-500 rounded-full" />}
 					</button>
 					<button
 						onClick={() => setActiveTab('replies')}
 						className={`flex-1 py-4 text-center font-medium relative ${
-							activeTab === 'replies'
-								? 'font-bold'
-								: 'text-text-secondary-light dark:text-text-secondary-dark'
+							activeTab === 'replies' ? 'font-bold' : 'text-text-secondary-light dark:text-text-secondary-dark'
 						}`}
 					>
 						Replies
-						{activeTab === 'replies' && (
-							<div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-primary-500 rounded-full" />
-						)}
+						{activeTab === 'replies' && <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-primary-500 rounded-full" />}
 					</button>
 					<button
 						onClick={() => setActiveTab('media')}
 						className={`flex-1 py-4 text-center font-medium relative ${
-							activeTab === 'media'
-								? 'font-bold'
-								: 'text-text-secondary-light dark:text-text-secondary-dark'
+							activeTab === 'media' ? 'font-bold' : 'text-text-secondary-light dark:text-text-secondary-dark'
 						}`}
 					>
 						Media
-						{activeTab === 'media' && (
-							<div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-primary-500 rounded-full" />
-						)}
+						{activeTab === 'media' && <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-primary-500 rounded-full" />}
 					</button>
 					<button
 						onClick={() => setActiveTab('likes')}
 						className={`flex-1 py-4 text-center font-medium relative ${
-							activeTab === 'likes'
-								? 'font-bold'
-								: 'text-text-secondary-light dark:text-text-secondary-dark'
+							activeTab === 'likes' ? 'font-bold' : 'text-text-secondary-light dark:text-text-secondary-dark'
 						}`}
 					>
 						Likes
-						{activeTab === 'likes' && (
-							<div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-primary-500 rounded-full" />
-						)}
+						{activeTab === 'likes' && <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-primary-500 rounded-full" />}
 					</button>
 				</div>
 
@@ -366,23 +334,13 @@ const ProfilePage = () => {
 					<div>
 						{tweets.length > 0 ? (
 							tweets.map((tweet) => (
-								<Tweet
-									key={tweet._id}
-									tweet={tweet}
-									onLike={handleLike}
-									onRetweet={handleRetweet}
-									onBookmark={handleBookmark}
-								/>
+								<Tweet key={tweet._id} tweet={tweet} onLike={handleLike} onRetweet={handleRetweet} onBookmark={handleBookmark} onReply={handleReply} />
 							))
 						) : (
 							<div className="flex flex-col items-center justify-center p-8 text-center h-[30vh]">
-								<h2 className="text-2xl font-bold mb-2">
-									{isOwnProfile ? "You haven't tweeted yet" : 'No tweets yet'}
-								</h2>
+								<h2 className="text-2xl font-bold mb-2">{isOwnProfile ? "You haven't tweeted yet" : 'No tweets yet'}</h2>
 								<p className="text-text-secondary-light dark:text-text-secondary-dark">
-									{isOwnProfile
-										? "When you post a tweet, it'll show up here."
-										: 'When they tweet, their tweets will show up here.'}
+									{isOwnProfile ? "When you post a tweet, it'll show up here." : 'When they tweet, their tweets will show up here.'}
 								</p>
 							</div>
 						)}
@@ -395,13 +353,9 @@ const ProfilePage = () => {
 							replies.map((reply) => <Reply key={reply._id} reply={reply} onLike={handleReplyLike} />)
 						) : (
 							<div className="flex flex-col items-center justify-center p-8 text-center h-[30vh]">
-								<h2 className="text-2xl font-bold mb-2">
-									{isOwnProfile ? "You haven't replied yet" : 'No replies yet'}
-								</h2>
+								<h2 className="text-2xl font-bold mb-2">{isOwnProfile ? "You haven't replied yet" : 'No replies yet'}</h2>
 								<p className="text-text-secondary-light dark:text-text-secondary-dark">
-									{isOwnProfile
-										? 'When you reply to tweets, your replies will show up here.'
-										: 'When they reply to tweets, their replies will show up here.'}
+									{isOwnProfile ? 'When you reply to tweets, your replies will show up here.' : 'When they reply to tweets, their replies will show up here.'}
 								</p>
 							</div>
 						)}
@@ -414,29 +368,17 @@ const ProfilePage = () => {
 							<div className="grid grid-cols-2 gap-0.5 p-1">
 								{userMediaTweets.map((tweet) =>
 									tweet.media?.map((image, index) => (
-										<Link
-											key={`${tweet._id}-${index}`}
-											to={`/tweet/${tweet._id}`}
-											className="aspect-square overflow-hidden"
-										>
-											<img
-												src={image}
-												alt="Media content"
-												className="w-full h-full object-cover transition-transform hover:scale-105"
-											/>
+										<Link key={`${tweet._id}-${index}`} to={`/tweet/${tweet._id}`} className="aspect-square overflow-hidden">
+											<img src={image} alt="Media content" className="w-full h-full object-cover transition-transform hover:scale-105" />
 										</Link>
 									))
 								)}
 							</div>
 						) : (
 							<div className="flex flex-col items-center justify-center p-8 text-center h-[30vh]">
-								<h2 className="text-2xl font-bold mb-2">
-									{isOwnProfile ? "You haven't posted media yet" : 'No media tweets yet'}
-								</h2>
+								<h2 className="text-2xl font-bold mb-2">{isOwnProfile ? "You haven't posted media yet" : 'No media tweets yet'}</h2>
 								<p className="text-text-secondary-light dark:text-text-secondary-dark">
-									{isOwnProfile
-										? "When you post photos or videos, they'll show up here."
-										: "When they tweet photos or videos, they'll show up here."}
+									{isOwnProfile ? "When you post photos or videos, they'll show up here." : "When they tweet photos or videos, they'll show up here."}
 								</p>
 							</div>
 						)}
@@ -446,18 +388,11 @@ const ProfilePage = () => {
 				{activeTab === 'likes' &&
 					(likes.length > 0 ? (
 						likes.map((like) => (
-							<div
-								key={like._id}
-								className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 p-2 mb-2"
-							>
+							<div key={like._id} className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 p-2 mb-2">
 								<img src={like.avatar} alt={like.name} className="w-8 h-8 object-cover rounded-full" />
 								<div className="text-text-primary-light dark:text-text-primary-dark">{like.name}</div>
 								{like.verified && (
-									<svg
-										className="w-5 h-5 ml-1 text-primary-500"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-									>
+									<svg className="w-5 h-5 ml-1 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
 										<path
 											fillRule="evenodd"
 											d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -465,39 +400,27 @@ const ProfilePage = () => {
 										/>
 									</svg>
 								)}
-								<div className="text-text-secondary-light dark:text-text-secondary-dark">
-									{like.username}
-								</div>
+								<div className="text-text-secondary-light dark:text-text-secondary-dark">{like.username}</div>
 							</div>
 						))
 					) : (
 						<div className="flex flex-col items-center justify-center p-8 text-center h-[30vh]">
-							<h2 className="text-2xl font-bold mb-2">
-								{isOwnProfile ? "You haven't liked any tweets yet" : 'No likes yet'}
-							</h2>
+							<h2 className="text-2xl font-bold mb-2">{isOwnProfile ? "You haven't liked any tweets yet" : 'No likes yet'}</h2>
 							<p className="text-text-secondary-light dark:text-text-secondary-dark">
-								{isOwnProfile
-									? "When you like tweets, they'll show up here."
-									: "When they like tweets, they'll show up here."}
+								{isOwnProfile ? "When you like tweets, they'll show up here." : "When they like tweets, they'll show up here."}
 							</p>
 						</div>
 					))}
 			</div>
 
 			{/* Edit Profile Modal */}
-			<EditProfileModal
-				isOpen={isEditModalOpen}
-				onClose={() => setIsEditModalOpen(false)}
-				onSave={handleProfileSave}
-			/>
+			<EditProfileModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSave={handleProfileSave} />
 		</div>
 	) : (
 		<div className="min-h-screen flex items-center justify-center">
 			<div className="w-full max-w-md">
 				<h2 className="text-2xl font-bold mb-2">User not found</h2>
-				<p className="text-text-secondary-light dark:text-text-secondary-dark">
-					The user you are looking for does not exist.
-				</p>
+				<p className="text-text-secondary-light dark:text-text-secondary-dark">The user you are looking for does not exist.</p>
 			</div>
 		</div>
 	);
