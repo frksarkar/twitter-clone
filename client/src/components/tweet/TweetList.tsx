@@ -1,28 +1,16 @@
-import { useNavigate } from 'react-router-dom';
 import Tweet from './Tweet';
-import axios from 'axios';
-import useAuthUser from '../../hooks/userAuthHooks';
-import { TweetType, User } from '../../types/tweet';
+import { TweetType } from '../../types/tweet';
 import { useEffect, useRef, useState } from 'react';
 import usePostStore from '../../stores/usePostStore';
-import useAuthStore from '../../stores/useAuth';
+import useTweetActions from '../../hooks/useTweetActions';
+import { authApi } from '../../api';
 
-const fetchMockData = async (
-	cursor: string,
-	limit: number = 10,
-	token: string,
-	activeTab: string
-): Promise<TweetType[]> => {
-	const { data } = await axios<{
+const fetchMockData = async (cursor: string, limit: number = 10, activeTab: string): Promise<TweetType[]> => {
+	const { data } = await authApi.get<{
 		status: string;
 		message: string;
 		posts: TweetType[];
-	}>({
-		method: 'get',
-		url: 'http://localhost:3000/api/posts',
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
+	}>('/api/posts', {
 		params: {
 			isFollowing: activeTab === 'following',
 			cursor,
@@ -35,17 +23,12 @@ const fetchMockData = async (
 
 const TweetList = ({ activeTab }: { activeTab: string }) => {
 	const { posts, setPosts } = usePostStore();
-
-	const navigate = useNavigate();
-	const { getToken } = useAuthStore();
-	const { getAuthUser, setAuthUser } = useAuthUser();
-	const authUserId = getAuthUser()?._id || '';
+	const { handleLike, handleRetweet, handleReply, handleBookmark } = useTweetActions();
 
 	// infinity scroll start
 	const [cursor, setCursor] = useState(String);
 	const [loading, setLoading] = useState(false);
 	const [hasMore, setHasMore] = useState(true);
-	const [targetTab, setTargetTab] = useState('for-you');
 
 	const observerRef = useRef<HTMLDivElement | null>(null);
 
@@ -54,7 +37,7 @@ const TweetList = ({ activeTab }: { activeTab: string }) => {
 		setLoading(true);
 		const currentCursor = posts.length ? posts[posts.length - 1].createdAt : '';
 
-		const newItems = await fetchMockData(cursor || currentCursor, 10, getToken() || '', activeTab);
+		const newItems = await fetchMockData(cursor || currentCursor, 10, activeTab);
 
 		setPosts([...posts, ...newItems]);
 
@@ -65,7 +48,6 @@ const TweetList = ({ activeTab }: { activeTab: string }) => {
 
 	useEffect(() => {
 		// Reset posts when switching tabs
-		setTargetTab(activeTab);
 		setPosts([]);
 		setCursor('');
 		setHasMore(true);
@@ -87,81 +69,6 @@ const TweetList = ({ activeTab }: { activeTab: string }) => {
 	}, [observerRef.current, loading, hasMore, activeTab]);
 	// infinity scroll end
 
-	const handleLike = async (postId: string) => {
-		try {
-			const response = await axios.put(`http://localhost:3000/api/posts/${postId}/like`, null, {
-				headers: {
-					Authorization: `Bearer ${getToken()}`,
-				},
-			});
-
-			if (response.data) {
-				setPosts(
-					posts.map((post) =>
-						post._id === postId ? { ...post, likedBy: toggleArray(post.likedBy, authUserId) } : post
-					)
-				);
-			}
-		} catch (error) {
-			console.error('Error liking post:', error);
-		}
-	};
-
-	const toggleArray = (array: string[], item: string) =>
-		array.includes(item) ? array.filter((i) => i !== item) : [...array, item];
-
-	const handleRetweet = async (postId: string) => {
-		try {
-			const response = await axios.post(`http://localhost:3000/api/posts/${postId}/retweet`, null, {
-				headers: {
-					Authorization: `Bearer ${getToken()}`,
-				},
-			});
-
-			const { state, data: post } = response.data;
-
-			let tweets = [...posts];
-
-			// Toggle the retweet state for the post
-			tweets = tweets.map((tweet) =>
-				tweet._id === postId ? { ...tweet, retweetedBy: toggleArray(tweet.retweetedBy, authUserId) } : tweet
-			);
-
-			// Add the post to the beginning of the list if it's a retweet
-			if (state === 'retweet') tweets.unshift(post);
-
-			// Remove any retweets of the post if it's a deletion
-			if (state === 'delete') tweets = tweets.filter((tweet) => tweet.retweetData?._id !== postId);
-
-			setPosts(tweets);
-		} catch (error) {
-			console.error('Error retweeting post:', error);
-		}
-	};
-
-	const handleBookmark = async (postId: string) => {
-		try {
-			const res = await axios.put(`http://localhost:3000/api/bookmark/${postId}`, null, {
-				headers: {
-					Authorization: `Bearer ${getToken()}`,
-				},
-			});
-
-			const { userBookmarks } = res.data;
-			const bookmarks = [...userBookmarks.bookmarks];
-
-			setAuthUser({
-				...getAuthUser(),
-				bookmarks,
-			} as User);
-		} catch (error) {
-			console.error('Error bookmarking post:', error);
-		}
-	};
-	const handleReply = (id: string) => {
-		navigate(`/tweet/${id}`);
-	};
-
 	return (
 		<div>
 			{loading ? (
@@ -176,20 +83,9 @@ const TweetList = ({ activeTab }: { activeTab: string }) => {
 					</div>
 				</div>
 			) : (
-				posts.map((tweet) => (
-					<Tweet
-						key={tweet._id}
-						tweet={tweet}
-						onLike={handleLike}
-						onRetweet={handleRetweet}
-						onBookmark={handleBookmark}
-						onReply={handleReply}
-					/>
-				))
+				posts.map((tweet) => <Tweet key={tweet._id} tweet={tweet} onLike={handleLike} onRetweet={handleRetweet} onBookmark={handleBookmark} onReply={handleReply} />)
 			)}
-			{!loading && !hasMore && (
-				<h1 className="flex flex-col items-center space-y-4 mt-4 font-medium">there is no more tweets</h1>
-			)}
+			{!loading && !hasMore && <h1 className="flex flex-col items-center space-y-4 mt-4 font-medium">there is no more tweets</h1>}
 			{loading ||
 				(hasMore && (
 					<div className="flex flex-col items-center space-y-4 mt-4">
