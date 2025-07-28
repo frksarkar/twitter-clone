@@ -5,72 +5,42 @@ require('dotenv').config();
 const { JWT_SECRET, JWT_EXPIRATION, REFRESH_TOKEN_EXPIRATION } = process.env;
 
 const generateAccessToken = (user) => {
-	const payload = {
-		id: user._id,
-		email: user.email,
-		name: user.name,
-	};
-
 	try {
-		const token = jwt.sign(payload, JWT_SECRET, {
-			expiresIn: JWT_EXPIRATION,
-		});
-		return token;
+		const payload = {
+			id: user._id,
+			email: user.email,
+			name: user.name,
+		};
+
+		const options = { expiresIn: JWT_EXPIRATION };
+
+		return jwt.sign(payload, JWT_SECRET, options);
 	} catch (error) {
+		console.error('Error generating access token:', error);
 		return null;
 	}
 };
 
 const generateRefreshToken = (user) => {
-	try {
-		const token = uuidv4(); // Generate a unique refresh token
-		const refreshToken = jwt.sign({ token }, JWT_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRATION });
+	const refreshTokenId = uuidv4();
+	const refreshToken = jwt.sign({ refreshTokenId }, JWT_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRATION });
 
-		// Store the refresh token in the database
-		Token.create({ userId: user._id, token: refreshToken });
-
-		return refreshToken;
-	} catch (error) {
-		return null;
-	}
+	Token.create({ userId: user._id, token: refreshToken });
+	return refreshToken;
 };
 
-const invalidateRefreshToken = (refreshToken) => {
-	// Remove the refresh token from memory
-	try {
-		const token = Token.findOneAndDelete({ token: refreshToken });
-		return token;
-	} catch (error) {
-		return null;
-	}
+const invalidateRefreshToken = async (refreshToken) => {
+	await Token.findOneAndDelete({ token: refreshToken }).exec();
 };
 
-const getUserFromRefreshToken = async (refreshToken) => {
-	// Retrieve the user ID associated with the refresh token
-	try {
-		const token = await Token.findOne({ token: refreshToken });
-
-		if (!token) {
-			return null;
-		}
-
-		return token.userId;
-	} catch (error) {
-		return null;
-	}
-};
+const getUserFromRefreshToken = async (refreshToken) => (await Token.findOne({ token: refreshToken }))?.userId ?? null;
 
 const isValidRefreshToken = async (refreshToken) => {
-	// Check if the refresh token exists in memory
 	try {
-		const token = await Token.findOne({ token: refreshToken });
-
-		if (!token) {
-			return false;
-		}
-
-		return token.userId;
+		const token = await Token.findOne({ token: refreshToken }).lean().select('userId').exec();
+		return token ? token.userId : false;
 	} catch (error) {
+		console.log('🚀 ~ tokens.js:81 ~ isValidRefreshToken ~ error:', error);
 		return false;
 	}
 };
@@ -79,12 +49,10 @@ const verifyToken = (token) => {
 	if (!token) return null;
 
 	try {
-		// Verify the token and return the decoded payload
-		const decoded = jwt.verify(token, JWT_SECRET);
-
-		return decoded;
-	} catch (error) {
-		return null; // Return null if verification fails
+		const payload = jwt.verify(token, JWT_SECRET);
+		return payload;
+	} catch {
+		return null;
 	}
 };
 
