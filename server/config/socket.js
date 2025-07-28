@@ -17,4 +17,4 @@ exports.initializeSocket = (server) => {
 			client.to(data.chat._id).emit('receive-message', data);
 		});
 	});
-}
+};
