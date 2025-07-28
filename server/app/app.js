@@ -21,6 +21,7 @@ const {
 	swaggerRouter,
 	bookmarkRouter,
 	repliesRouter,
+	authRouter,
 } = require('../routers');
 
 const { errorHandler, notFound, authMiddleware } = require('../middleware');
@@ -38,6 +39,7 @@ app.use(morgan('dev'));
 app.use('/api-docs', swaggerRouter);
 
 // Routers with authentication middleware
+app.use('/api', authRouter);
 app.use('/api/posts', authMiddleware, postsRouter);
 app.use('/api/messages', authMiddleware, messageRouter);
 app.use('/api/chats', authMiddleware, chatRouter);
