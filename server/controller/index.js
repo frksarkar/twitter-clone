@@ -9,7 +9,7 @@ const registerController = require('./registerController');
 const repliesController = require('./repliesController');
 const searchController = require('./searchController');
 const userController = require('./userController');
-const swaggerComponent = require('./swaggerComponent');
+const authController = require('./authController');
 
 module.exports = {
 	bookmarkController,
@@ -23,5 +23,5 @@ module.exports = {
 	repliesController,
 	searchController,
 	userController,
-	swaggerComponent,
+	authController,
 };
