@@ -1,16 +1,6 @@
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import {
-	MessageCircle,
-	Repeat,
-	Heart,
-	Bookmark,
-	Share,
-	MoreHorizontal,
-	FileHeart as HeartFilled,
-	Bookmark as BookmarkFilled,
-	Repeat as RepeatFilled,
-} from 'lucide-react';
+import { MessageCircle, Repeat, Heart, Bookmark, Share, MoreHorizontal, FileHeart as HeartFilled, Bookmark as BookmarkFilled, Repeat as RepeatFilled } from 'lucide-react';
 import { TweetType } from '../../types/tweet';
 import React, { useEffect, useRef, useState } from 'react';
 import userStore from '../../stores/useAuthUser';
@@ -32,25 +22,15 @@ const Tweet = ({ tweet, onLike, onRetweet, onBookmark, onReply }: TweetProps) =>
 	const [showDropdown, setShowDropdown] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 
-	const {
-		_id: id,
-		author: user,
-		content,
-		media,
-		updatedAt: timestamp,
-		replyTo: replies,
-		retweetedBy: retweets,
-		likedBy: likes,
-	} = retweetOriginalTweet;
+	const { _id: id, author: user, content, media, updatedAt: timestamp, replyTo: replies, retweetedBy: retweets, likedBy: likes } = retweetOriginalTweet;
 
 	const isLiked = likes?.includes(authUserId);
 	const isRetweeted = isRetweet ? tweet?.retweetedBy?.includes(authUserId) : retweets?.includes(authUserId);
-	const isBookmarked = authUser?.bookmarks.includes(id);
+	const isBookmarked = authUser?.bookmarks.includes(tweet._id);
 
 	// Close dropdown when clicking outside
 	useEffect(() => {
-		const handleClickOutside = ({ target }: MouseEvent) =>
-			!dropdownRef.current?.contains(target as Node) && setShowDropdown(false);
+		const handleClickOutside = ({ target }: MouseEvent) => !dropdownRef.current?.contains(target as Node) && setShowDropdown(false);
 
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
@@ -98,12 +78,7 @@ const Tweet = ({ tweet, onLike, onRetweet, onBookmark, onReply }: TweetProps) =>
 			return (
 				<div className="mt-3 grid grid-cols-2 gap-1 rounded-2xl overflow-hidden border border-secondary-100 dark:border-secondary-800">
 					{media.map((image, index) => (
-						<img
-							key={index}
-							src={image}
-							alt={`Tweet media ${index + 1}`}
-							className="w-full h-48 object-cover"
-						/>
+						<img key={index} src={image} alt={`Tweet media ${index + 1}`} className="w-full h-48 object-cover" />
 					))}
 				</div>
 			);
@@ -150,11 +125,7 @@ const Tweet = ({ tweet, onLike, onRetweet, onBookmark, onReply }: TweetProps) =>
 			{/* Tweet Header */}
 			<div className="flex">
 				<Link to={`/profile/${tweet.author.username}`} className="flex-shrink-0 mr-3">
-					<img
-						src={tweet.author.avatar}
-						alt={tweet.author.name}
-						className="w-12 h-12 rounded-full object-cover"
-					/>
+					<img src={tweet.author.avatar} alt={tweet.author.name} className="w-12 h-12 rounded-full object-cover" />
 				</Link>
 
 				<div className="flex-1 min-w-0">
@@ -180,10 +151,7 @@ const Tweet = ({ tweet, onLike, onRetweet, onBookmark, onReply }: TweetProps) =>
 								/>
 							</svg>
 						)}
-						<Link
-							to={`/profile/${user.username}`}
-							className="text-text-secondary-light dark:text-text-secondary-dark ml-1 truncate hover:underline"
-						>
+						<Link to={`/profile/${user.username}`} className="text-text-secondary-light dark:text-text-secondary-dark ml-1 truncate hover:underline">
 							@{user.username}
 						</Link>
 						<span className="text-text-secondary-light dark:text-text-secondary-dark mx-1">·</span>
@@ -273,13 +241,7 @@ const Tweet = ({ tweet, onLike, onRetweet, onBookmark, onReply }: TweetProps) =>
 							<span className="p-2 rounded-full group-hover:bg-success-500/10 group-hover:text-success-500 transition-colors">
 								{isRetweeted ? <RepeatFilled size={18} /> : <Repeat size={18} />}
 							</span>
-							<span
-								className={`ml-1 text-sm ${
-									isRetweeted ? 'text-success-500' : 'group-hover:text-success-500'
-								}`}
-							>
-								{retweets.length}
-							</span>
+							<span className={`ml-1 text-sm ${isRetweeted ? 'text-success-500' : 'group-hover:text-success-500'}`}>{retweets.length}</span>
 						</button>
 
 						<button
@@ -293,11 +255,7 @@ const Tweet = ({ tweet, onLike, onRetweet, onBookmark, onReply }: TweetProps) =>
 							<span className="p-2 rounded-full group-hover:bg-error-500/10 group-hover:text-error-500 transition-colors">
 								{isLiked ? <HeartFilled size={18} /> : <Heart size={18} />}
 							</span>
-							<span
-								className={`ml-1 text-sm ${isLiked ? 'text-error-500' : 'group-hover:text-error-500'}`}
-							>
-								{likes.length}
-							</span>
+							<span className={`ml-1 text-sm ${isLiked ? 'text-error-500' : 'group-hover:text-error-500'}`}>{likes.length}</span>
 						</button>
 
 						<button
@@ -311,13 +269,7 @@ const Tweet = ({ tweet, onLike, onRetweet, onBookmark, onReply }: TweetProps) =>
 							<span className="p-2 rounded-full group-hover:bg-primary-50 dark:group-hover:bg-secondary-800 group-hover:text-primary-500 transition-colors">
 								{isBookmarked ? <BookmarkFilled size={18} /> : <Bookmark size={18} />}
 							</span>
-							<span
-								className={`ml-1 text-sm ${
-									isBookmarked ? 'text-primary-500' : 'group-hover:text-primary-500'
-								}`}
-							>
-								{/* {bookmarks.length} */}
-							</span>
+							<span className={`ml-1 text-sm ${isBookmarked ? 'text-primary-500' : 'group-hover:text-primary-500'}`}>{/* {bookmarks.length} */}</span>
 						</button>
 
 						<button
