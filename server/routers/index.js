@@ -1,3 +1,4 @@
+const swaggerRouter = require('./swaggerRouter');
 const loginRouter = require('./loginRouter');
 const registerRouter = require('./registerRouter');
 const postsRouter = require('./postsRouter');
@@ -11,11 +12,12 @@ const chatRouter = require('./chatRouter');
 const messageRouter = require('./messageRouter');
 const notificationRouter = require('./notificationRouter');
 const postRouter = require('./postRouter');
-const swaggerRouter = require('./swaggerRouter');
 const bookmarkRouter = require('./bookmarkRouter');
 const repliesRouter = require('./repliesRouter');
+const authRouter = require('./authRoutes');
 
 module.exports = {
+	swaggerRouter,
 	loginRouter,
 	registerRouter,
 	postsRouter,
@@ -29,7 +31,7 @@ module.exports = {
 	messageRouter,
 	notificationRouter,
 	postRouter,
-	swaggerRouter,
 	bookmarkRouter,
 	repliesRouter,
+	authRouter,
 };
