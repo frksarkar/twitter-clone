@@ -1,9 +1,30 @@
 const express = require('express');
 const profile = require('../controller/profileController');
-const { payloadHandler } = require('../middleware/payload');
 
 const profileRouter = express.Router();
 
-profileRouter.get('/:id', payloadHandler('Profile'), profile.getProfile);
+/**
+ * @openapi
+ * /profile:
+ *   get:
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     description: Get the profile of the logged-in user
+ *
+ *     responses:
+ *       200:
+ *         description: The profile of the logged-in user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized
+ *
+ */
 
-exports.profileRouter = profileRouter;
+profileRouter.get('/', profile.getProfile);
+
+module.exports = profileRouter;

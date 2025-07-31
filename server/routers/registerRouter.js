@@ -9,4 +9,4 @@ registerRouter.get('/', fieldValidation, register.viewRegisterForm);
 
 registerRouter.post('/', fieldValidation, register.postRegisterForm);
 
-exports.registerRouter = registerRouter;
+module.exports = registerRouter;

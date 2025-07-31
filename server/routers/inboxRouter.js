@@ -6,10 +6,6 @@ const inboxRouter = express.Router();
 
 inboxRouter.get('/', payloadHandler('Messages'), inbox.getMessagePage);
 
-inboxRouter.get(
-	'/new',
-	payloadHandler('New messages'),
-	inbox.getGroupMessagePage
-);
+inboxRouter.get('/new', payloadHandler('New messages'), inbox.getGroupMessagePage);
 
-exports.inboxRouter = inboxRouter;
+module.exports = inboxRouter;

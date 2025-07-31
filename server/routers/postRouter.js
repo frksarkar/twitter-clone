@@ -9,4 +9,4 @@ routers.get('/:id', payloadHandler('Post'), async (req, res, next) => {
 	res.render('post-page', { postId });
 });
 
-exports.postRouter = routers;
+module.exports = routers;

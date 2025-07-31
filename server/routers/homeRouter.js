@@ -6,4 +6,4 @@ const homeRouter = express.Router();
 
 homeRouter.get('/', payloadHandler('Home'), home.homePage);
 
-exports.homeRouter = homeRouter;
+module.exports = homeRouter;
