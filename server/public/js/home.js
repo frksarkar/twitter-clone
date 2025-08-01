@@ -60,9 +60,7 @@ document.addEventListener('click', (event) => {
 	// find the button request pin post
 	event.target.closest('#pinned-post-btn') ? pinnedPost(postId, true) : null;
 	// find the button request unpin the post
-	event.target.closest('#unpinned-post-btn')
-		? pinnedPost(postId, false)
-		: null;
+	event.target.closest('#unpinned-post-btn') ? pinnedPost(postId, false) : null;
 
 	// open the pinned container
 	if (pinBtn && !pinBtn?.dataset.pin) {
@@ -74,9 +72,7 @@ document.addEventListener('click', (event) => {
 	}
 
 	// Get the id of the post container, if it exists
-	const elementId = postContainer
-		? event.target.closest('.post').dataset.id
-		: null;
+	const elementId = postContainer ? event.target.closest('.post').dataset.id : null;
 
 	// if elementId is exist then stor the value postId variable
 	if (elementId) {
@@ -114,15 +110,11 @@ deletePostBtn.addEventListener('click', async () => {
 	try {
 		if (!postId) return alert('post id is required');
 		const response = await postDeleteReq(postId);
-		if (response.status != 'success')
-			throw new Error('HTTP request problem');
+		if (response.status != 'success') throw new Error('HTTP request problem');
 		showToastMessage('You are delete this post', 2000);
 		location.reload();
 	} catch (error) {
-		console.log(
-			'🚀 ~ file: home.js:119 ~ deletePostBtn.addEventListener ~ error:',
-			error
-		);
+		next(error);
 	}
 });
 
@@ -144,15 +136,9 @@ function dialogBoxClose() {
 	dialogBox.classList.remove('active');
 	deleteBox.classList.remove('active');
 	document.querySelector('.overlay').classList.remove('active');
-	dialogBox.querySelector('.post')
-		? dialogBox.querySelector('.post').remove()
-		: null;
-	document
-		.querySelector('.pinned-popup-container')
-		?.classList.remove('active');
-	document
-		.querySelector('.unpinned-popup-container')
-		?.classList.remove('active');
+	dialogBox.querySelector('.post') ? dialogBox.querySelector('.post').remove() : null;
+	document.querySelector('.pinned-popup-container')?.classList.remove('active');
+	document.querySelector('.unpinned-popup-container')?.classList.remove('active');
 }
 
 dialogBoxSubmitBtn.addEventListener('click', () => {
@@ -189,9 +175,9 @@ async function pressTweetBtn(tweetBtn, elementId) {
 	});
 	const data = await result.json();
 	const tweet = tweetBtn.querySelector('span');
-	tweet.innerText = data.updatedPost.retweetUsers.length || '';
+	tweet.innerText = data.updatedPost.retweetedBy.length || '';
 
-	const userLike = data.updatedPost.retweetUsers.includes(user._id);
+	const userLike = data.updatedPost.retweetedBy.includes(user._id);
 	if (userLike) {
 		tweetBtn.classList.add('active');
 		const newPostHtml = createHtml(data.newRetweet);
@@ -315,12 +301,10 @@ async function follow(btn) {
 	if (result.action === 'Follow') {
 		btn.innerText = 'Follow';
 		btn.classList.remove('following');
-		if (followCount)
-			followCount.innerText = parseInt(followCount?.innerText) - 1;
+		if (followCount) followCount.innerText = parseInt(followCount?.innerText) - 1;
 	} else {
 		btn.innerText = 'Following';
 		btn.classList.add('following');
-		if (followCount)
-			followCount.innerText = parseInt(followCount?.innerText) + 1;
+		if (followCount) followCount.innerText = parseInt(followCount?.innerText) + 1;
 	}
 }
