@@ -14,13 +14,7 @@ function htmlMarkup(data) {
 		const url = typeOfUrl(element);
 		const title = typeOfNotification(element);
 
-		html += htmlElement(
-			url,
-			element._id,
-			isActive,
-			receiveUser.profilePicture,
-			title
-		);
+		html += htmlElement(url, element._id, isActive, receiveUser.profilePicture, title);
 	});
 	return html;
 }
@@ -38,9 +32,9 @@ function htmlElement(url, elementId, isActive, profilePicture, title) {
 }
 
 function typeOfUrl(notification) {
-	const { notificationType, entryId } = notification;
+	const { type, entryId } = notification;
 	let path = '';
-	switch (notificationType) {
+	switch (type) {
 		case 'retweet':
 		case 'like':
 			path = `/post/${entryId}`;
@@ -54,7 +48,7 @@ function typeOfUrl(notification) {
 	return path;
 }
 
-function typeOfNotification({ notificationType, userForm }) {
+function typeOfNotification({ type, userForm }) {
 	const user = userForm.userName;
 	const map = {
 		retweet: 'retweeted one of your posts',
@@ -62,7 +56,7 @@ function typeOfNotification({ notificationType, userForm }) {
 		follow: 'started following you',
 		message: 'sent you a message',
 	};
-	return `${user} ${map[notificationType]}`;
+	return `${user} ${map[type]}`;
 }
 
 async function markNotificationAsOpened(btnElement) {
