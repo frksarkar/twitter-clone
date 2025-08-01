@@ -7,4 +7,4 @@ searchRouter.get('/', search.searchPostsPage);
 
 searchRouter.get('/users', search.searchUsersPage);
 
-exports.searchRouter = searchRouter;
+module.exports = searchRouter;
