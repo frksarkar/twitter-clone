@@ -24,12 +24,10 @@ document.addEventListener('click', (event) => {
 	const coverPicBtn = event.target.closest('.cover-pic-btn');
 
 	// find close picture upload popup button
-	const profilePicUploadContainerCloseBtn =
-		event.target.closest('.btn-close-popup');
+	const profilePicUploadContainerCloseBtn = event.target.closest('.btn-close-popup');
 
 	// find close cover picture upload popup button
-	const coverPicUploadContainerCloseBtn =
-		event.target.closest('.close-cover-popup');
+	const coverPicUploadContainerCloseBtn = event.target.closest('.close-cover-popup');
 
 	// find save profile picture
 	const saveProfilePictureBtn = event.target.closest('#save-picture-btn');
@@ -41,34 +39,22 @@ document.addEventListener('click', (event) => {
 	const userId = profilePicUploadBtn?.dataset.userid;
 
 	// show profile pic upload container
-	profilePicUploadBtn && userId
-		? toggleUploadPopup(userId, event, '.upload-profile-pic-container')
-		: null;
+	profilePicUploadBtn && userId ? toggleUploadPopup(userId, event, '.upload-profile-pic-container') : null;
 
 	// show cover pic upload container
-	coverPicBtn
-		? toggleUploadPopup(userId, event, '.upload-cover-pic-container')
-		: null;
+	coverPicBtn ? toggleUploadPopup(userId, event, '.upload-cover-pic-container') : null;
 
 	// close profile pic upload container
-	profilePicUploadContainerCloseBtn
-		? toggleUploadPopup('close', event, '.upload-profile-pic-container')
-		: null;
+	profilePicUploadContainerCloseBtn ? toggleUploadPopup('close', event, '.upload-profile-pic-container') : null;
 
 	//
-	coverPicUploadContainerCloseBtn
-		? toggleUploadPopup('close', event, '.upload-cover-pic-container')
-		: null;
+	coverPicUploadContainerCloseBtn ? toggleUploadPopup('close', event, '.upload-cover-pic-container') : null;
 
 	// Send the file to the server.
-	saveProfilePictureBtn
-		? sendProfilePicToServer(user._id, cropper, event, 'profile')
-		: null;
+	saveProfilePictureBtn ? sendProfilePicToServer(user._id, cropper, event, 'profile') : null;
 
 	// Send to the cover image file to the server.
-	saveCoverPictureBtn
-		? sendProfilePicToServer(user._id, cropper, event, 'cover')
-		: null;
+	saveCoverPictureBtn ? sendProfilePicToServer(user._id, cropper, event, 'cover') : null;
 });
 
 // uploadedCoverFile.addEventListener('change', loadImage);
@@ -80,9 +66,7 @@ function injectPostInHtml(posts) {
 	posts.forEach((postData) => {
 		newPostHtml += createHtml(postData);
 		if (postData.pinned) {
-			const pinPostContainer = document.querySelector(
-				'.pin-post-container'
-			);
+			const pinPostContainer = document.querySelector('.pin-post-container');
 			let para = document.createElement('div');
 			para.classList.add('pin-post');
 			let postHtml = createHtml(postData);
@@ -103,12 +87,9 @@ function injectPostInHtml(posts) {
 
 async function loadPosts(data) {
 	// Send a GET request to the '/api/posts' endpoint and wait for the response
-	const getAllPosts = await fetch(
-		`/api/posts?postedBy=${data.userId}&isReply=${data.isReply}`,
-		{
-			method: 'GET',
-		}
-	);
+	const getAllPosts = await fetch(`/api/posts?author=${data.userId}&isReply=${data.isReply}`, {
+		method: 'GET',
+	});
 
 	// Parse the response as JSON
 	return getAllPosts.json();
@@ -119,8 +100,7 @@ function toggleUploadPopup(data, event, container) {
 	const profilePicUploaderContainer = document.querySelector(container);
 
 	//	select picture upload file
-	const uploadedFile =
-		profilePicUploaderContainer.querySelector('#upload-image-file');
+	const uploadedFile = profilePicUploaderContainer.querySelector('#upload-image-file');
 	uploadedFile.addEventListener('change', loadImage);
 
 	// overlay screen
@@ -129,8 +109,7 @@ function toggleUploadPopup(data, event, container) {
 	// close the popup container
 	if (data === 'close') {
 		//	image preview container
-		const imagePreview =
-			profilePicUploaderContainer.querySelector('.preview-picture');
+		const imagePreview = profilePicUploaderContainer.querySelector('.preview-picture');
 		const img = imagePreview.children[0];
 
 		profilePicUploaderContainer.classList.remove('active');
@@ -168,10 +147,7 @@ function sendProfilePicToServer(userId, cropper, event, imageName) {
 				location.reload();
 			})
 			.catch((err) => {
-				console.log(
-					'🚀 ~ file: profile.js:160 ~ cropper.getCroppedCanvas ~ err:',
-					err
-				);
+				console.log('🚀 ~ file: profile.js:160 ~ cropper.getCroppedCanvas ~ err:', err);
 			});
 	});
 }
@@ -200,21 +176,13 @@ function loadImage(event) {
 }
 
 //	Add event listener for mouseover on profile avatar
-document
-	.querySelector('.profile-avatar')
-	.addEventListener('mouseover', function (event) {
-		// Remove class
-		document
-			.querySelector('.profile-cover')
-			.classList.remove('profile-cover-image');
-	});
+document.querySelector('.profile-avatar').addEventListener('mouseover', function (event) {
+	// Remove class
+	document.querySelector('.profile-cover').classList.remove('profile-cover-image');
+});
 
 // Add event listener for mouseout on profile avatar
-document
-	.querySelector('.profile-avatar')
-	.addEventListener('mouseout', function (event) {
-		// Add class
-		document
-			.querySelector('.profile-cover')
-			.classList.add('profile-cover-image');
-	});
+document.querySelector('.profile-avatar').addEventListener('mouseout', function (event) {
+	// Add class
+	document.querySelector('.profile-cover').classList.add('profile-cover-image');
+});
