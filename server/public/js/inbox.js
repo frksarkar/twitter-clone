@@ -12,9 +12,7 @@ function generateHtml(data) {
 	const users = filterUser(data, user._id);
 	const image = groupImage(users, data.isGroupChat);
 	const groupName = data.chatName ? data.chatName : createGroupName(users);
-	const latestMessage = data.latestMessage
-		? recentMeg(data.latestMessage)
-		: 'new';
+	const latestMessage = data.latestMessage ? recentMeg(data.latestMessage) : 'new';
 
 	let className = data.isGroupChat ? 'group' : '';
 
@@ -36,7 +34,7 @@ function recentMeg(data) {
 }
 
 function filterUser(data, loginUserId) {
-	return data.users?.filter((user) => user._id != loginUserId);
+	return data.groupMembers?.filter((user) => user._id != loginUserId);
 }
 
 function createGroupName(data) {
@@ -52,14 +50,10 @@ function createGroupName(data) {
 }
 
 function groupImage(data, isGroupImage) {
-	let image = `<img src="${
-		data[0]?.profilePicture || 'https://i.pravatar.cc/300'
-	}  " alt="group-image"></img>`;
+	let image = `<img src="${data[0]?.avatar || 'https://i.pravatar.cc/300'}  " alt="group-image"></img>`;
 
 	if (isGroupImage) {
-		image += `<img src="${
-			data[1]?.profilePicture || 'https://i.pravatar.cc/300'
-		}  " alt="group-image"></img>`;
+		image += `<img src="${data[1]?.avatar || 'https://i.pravatar.cc/300'}  " alt="group-image"></img>`;
 	}
 	return image;
 }
