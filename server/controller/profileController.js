@@ -1,22 +1,20 @@
-const mongoose = require('mongoose');
-const { User } = require('../module/userSchema');
+const { User } = require('../model');
+const { throwError } = require('../util/helper');
 
 exports.getProfile = async (req, res, next) => {
-	const profileIdAndName = req.params.id;
-	let activeTab = 'post';
-	if (req.query.tab == 'replies') {
-		activeTab = 'replies';
-	}
+	const profileId = req.user.id;
 
-	let findUser = await User.findOne({ userName: profileIdAndName });
-	const isObjId = mongoose.isValidObjectId(profileIdAndName);
-	if (isObjId) {
-		findUser = await User.findOne({ _id: profileIdAndName });
-	}
+	try {
+		const user = await User.findById(profileId).select('-password -__v');
+		if (!user) {
+			throwError('User not found', 404);
+		}
 
-	const payload = {
-		user: findUser,
-		activeTab,
-	};
-	res.render('profile', payload);
+		res.status(200).json({
+			status: 'success',
+			data: user,
+		});
+	} catch (error) {
+		next(error);
+	}
 };
