@@ -183,7 +183,7 @@ const MessagesPage = () => {
 				</div>
 
 				{/* Message Thread */}
-				<div className="flex-1 flex flex-col w-2/4">
+				<div className="flex-1 flex flex-col">
 					{/* Conversation Header */}
 					<div className="p-3 border-b border-secondary-100 dark:border-secondary-800 flex items-center">
 						<img
@@ -232,7 +232,7 @@ const MessagesPage = () => {
 					</div>
 
 					{/* Message Input */}
-					<div className="p-3 border-t relative border-secondary-100 dark:border-secondary-800">
+					<div className="p-3 border-t border-secondary-100 dark:border-secondary-800">
 						<div className="flex items-center bg-secondary-50 dark:bg-secondary-800 rounded-full px-4 py-2">
 							<div className="flex space-x-2 text-primary-500">
 								<button className="p-1 rounded-full hover:bg-secondary-100 dark:hover:bg-secondary-700 transition-colors">
@@ -261,7 +261,7 @@ const MessagesPage = () => {
 							<button
 								onClick={handleSendMessage}
 								disabled={!messageText.trim()}
-								className={`p-1 rounded-full absolute right-5 ${
+								className={`p-1 rounded-full ${
 									messageText.trim()
 										? 'text-primary-500 hover:bg-primary-50 dark:hover:bg-secondary-700'
 										: 'text-text-secondary-light dark:text-text-secondary-dark'

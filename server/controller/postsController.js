@@ -1,29 +1,37 @@
-const { Post } = require('../module/PostSchema');
-const { User } = require('../module/userSchema');
+const { default: mongoose } = require('mongoose');
+
 const { throwError, notify } = require('../util/helper');
+const { uploadImage } = require('../util/uploadImage');
+const { User, Reply, Post } = require('../model');
 
 exports.createPost = async function (req, res, next) {
 	const { content, replayTo } = req.body;
-	const user = req.session.user;
+	const userId = req.user.id;
+
 	try {
-		if (!(req.session && req.session.user)) {
+		if (!userId) {
 			throwError('user not authenticated', 400);
 		}
 		if (!content) {
 			throwError('you must provide a content', 400);
 		}
-		const newPost = await Post.create({
-			content,
-			postedBy: user._id,
-			replayTo,
-		});
 
-		await newPost.populate({ path: 'postedBy', select: '-password' });
+		const config = { content, author: userId, replayTo };
+
+		if (req.files?.length > 0) {
+			const uploadPromise = req.files?.map((file) => uploadImage(file.buffer, file.originalname, 'posts'));
+			const uploadedFiles = await Promise.all(uploadPromise);
+			config.media = uploadedFiles;
+		}
+
+		const newPost = await Post.create(config);
+
+		await newPost.populate({ path: 'author', select: '_id name username avatar' });
 
 		res.status(201).json({
 			status: 'success',
 			message: 'Post created successfully',
-			data: newPost,
+			newPost,
 		});
 	} catch (error) {
 		next(error);
@@ -31,33 +39,130 @@ exports.createPost = async function (req, res, next) {
 };
 
 exports.getAllPosts = async function (req, res, next) {
-	const query = req.query;
-	const searchObj = {};
-	if (query.postedBy && query.isReply == 'false') {
-		searchObj.postedBy = query.postedBy;
-		searchObj.replayTo = { $exists: false };
-	}
-	if (query.postedBy && query.isReply == 'true') {
-		searchObj.postedBy = query.postedBy;
-		searchObj.replayTo = { $exists: true };
-	}
+	const { isAuthor, userId, isReply, isFollowing, search, cursor, limit = 10 } = req.query;
 
-	if (query.search) {
-		searchObj.content = { $regex: query.search };
-	}
+	try {
+		const authorId = req.user.id;
 
-	const allPosts = await Post.find(searchObj)
-		.sort({ createdAt: -1 })
-		.populate({
-			path: 'postedBy',
-			select: '-password',
-		})
-		.populate({
-			path: 'retweetData',
-			populate: 'postedBy',
+		const matchConditions = [];
+
+		if (cursor && cursor !== '') {
+			matchConditions.push({
+				createdAt: { $lt: new Date(cursor) },
+			});
+		}
+
+		if (isAuthor === 'true') {
+			matchConditions.push({
+				author: new mongoose.Types.ObjectId(authorId),
+			});
+		}
+
+		if (userId && userId !== '' && isAuthor !== 'true') {
+			matchConditions.push({
+				author: new mongoose.Types.ObjectId(userId),
+			});
+		}
+
+		if (search) {
+			matchConditions.push({
+				content: { $regex: search, $options: 'i' },
+			});
+		}
+
+		if (isReply === 'true') {
+			matchConditions.push({
+				replayTo: { $exists: true },
+			});
+		}
+
+		if (isFollowing === 'true') {
+			const user = await User.findById(authorId).select('following').exec();
+			matchConditions.push({
+				author: { $in: user.following },
+			});
+		}
+
+		const pipeline = [
+			...(matchConditions.length ? [{ $match: { $and: matchConditions } }] : []),
+			{
+				$lookup: {
+					from: 'users',
+					localField: 'author',
+					foreignField: '_id',
+					as: 'author',
+				},
+			},
+			{ $unwind: '$author' },
+			{
+				$project: {
+					'author.password': 0,
+					'author.website': 0,
+					'author.email': 0,
+					'author.phone': 0,
+					'author.location': 0,
+					'author.coverPicture': 0,
+					'author.updatedAt': 0,
+					'author.createdAt': 0,
+					'author.__v': 0,
+					'author.likes': 0,
+					'author.followers': 0,
+					'author.following': 0,
+					'author.dateOfBirth': 0,
+					'author.bio': 0,
+				},
+			},
+			{
+				$lookup: {
+					from: 'posts',
+					localField: 'retweetData',
+					foreignField: '_id',
+					as: 'retweetData',
+				},
+			},
+			{ $unwind: { path: '$retweetData', preserveNullAndEmptyArrays: true } },
+			{
+				$lookup: {
+					from: 'users',
+					localField: 'retweetData.author',
+					foreignField: '_id',
+					as: 'retweetData.author',
+				},
+			},
+			{ $unwind: { path: '$retweetData.author', preserveNullAndEmptyArrays: true } },
+			{
+				$project: {
+					'retweetData.author.password': 0,
+					'retweetData.author.website': 0,
+					'retweetData.author.email': 0,
+					'retweetData.author.phone': 0,
+					'retweetData.author.location': 0,
+					'retweetData.author.coverPicture': 0,
+					'retweetData.author.updatedAt': 0,
+					'retweetData.author.createdAt': 0,
+					'retweetData.author.__v': 0,
+					'retweetData.author.likes': 0,
+					'retweetData.author.followers': 0,
+					'retweetData.author.following': 0,
+					'retweetData.author.dateOfBirth': 0,
+					'retweetData.author.bio': 0,
+				},
+			},
+
+			{ $sort: { createdAt: -1 } },
+			{ $limit: Number(limit) },
+		];
+
+		const allPosts = await Post.aggregate(pipeline);
+
+		res.status(200).json({
+			status: 'success',
+			message: 'Posts fetched successfully',
+			posts: allPosts,
 		});
-
-	res.status(200).json(allPosts);
+	} catch (error) {
+		next(error);
+	}
 };
 
 exports.getPost = async function (req, res, next) {
@@ -65,12 +170,12 @@ exports.getPost = async function (req, res, next) {
 	const post = await Post.findById({ _id: postId })
 		.sort({ createdAt: -1 })
 		.populate({
-			path: 'postedBy',
+			path: 'author',
 			select: '-password',
 		})
 		.populate({
 			path: 'retweetData',
-			populate: 'postedBy',
+			populate: 'author',
 		});
 
 	res.status(200).json(post);
@@ -79,118 +184,96 @@ exports.getPost = async function (req, res, next) {
 exports.updateLike = async (req, res, next) => {
 	try {
 		const postId = req.params.id;
-		const loginUserId = req.session?.user?._id;
+		const userId = req.user.id;
 
-		if (!(postId && loginUserId)) {
+		if (!(postId && userId)) {
 			throwError('You must provide a post id and user id', 400);
 		}
-		const likes =
-			req.session?.user?.likes && req.session.user.likes.includes(postId);
 
-		const method = likes ? '$pull' : '$addToSet';
-		req.session.user = await User.findByIdAndUpdate(
-			loginUserId,
-			{
-				[method]: { likes: postId },
-			},
-			{ new: true }
-		);
+		const user = await User.findById(userId).exec();
+		const like = user.likes.includes(postId);
+		const method = like ? '$pull' : '$addToSet';
 
-		const post = await Post.findByIdAndUpdate(
-			postId,
-			{
-				[method]: { likes: loginUserId },
-			},
-			{ new: true }
-		);
+		await User.findByIdAndUpdate(userId, { [method]: { likes: postId } }, { new: true });
+
+		const post = await Post.findByIdAndUpdate(postId, { [method]: { likedBy: userId } }, { new: true });
+
+		const state = method === '$addToSet' ? 'like' : 'unlike';
+		const updateMessage = `@${user.username} ${state} your post`;
 
 		// notification
-		await notify(loginUserId, post.postedBy, 'like', postId, likes);
+		notify(userId, post.author, 'like', `${user.username} ${state} your post`, postId, like);
 
 		res.status(200).json({
 			status: 'success',
-			message: 'updated successfully',
-			data: post,
+			message: updateMessage,
+			state,
 		});
 	} catch (error) {
-		console.log(
-			'🚀 ~ file: postController.js:128 ~ exports.updateLike= ~ error:',
-			error
-		);
+		next(error);
 	}
 };
 
 exports.retweetPost = async (req, res, next) => {
+	const postId = req.params.id;
+	const userId = req.user.id;
+
 	try {
-		const postId = req.params.id;
-		const loginUserId = req.session?.user?._id;
-		if (!(postId && loginUserId)) {
+		if (!postId || !userId) {
 			throwError('You must provide a post id and user id', 400);
 		}
 
-		const deletePost = await Post.findOneAndDelete({
-			postedBy: loginUserId,
+		const postAuthor = await Post.findById(postId).exec();
+
+		if (postAuthor.author._id.toString() === userId) {
+			throwError('You can not retweet your own post', 400);
+		}
+
+		const deleteRetweet = await Post.findOneAndDelete({
+			author: userId,
 			retweetData: postId,
 		});
 
-		const method = deletePost ? '$pull' : '$addToSet';
+		const method = deleteRetweet ? '$pull' : '$addToSet';
 
-		let newRetweet;
-		if (!deletePost) {
-			newRetweet = await Post.create({
-				postedBy: loginUserId,
+		let retweet;
+		if (!deleteRetweet) {
+			retweet = await Post.create({
+				author: userId,
 				retweetData: postId,
 			});
 
-			await newRetweet.populate({
-				path: 'retweetData',
-				populate: 'postedBy',
-			});
-			await newRetweet.populate('postedBy');
+			await retweet.populate([
+				{ path: 'retweetData', populate: { path: 'author', select: '_id name username avatar' } },
+				{ path: 'author', select: '_id name username avatar' },
+			]);
 		}
 
-		req.session.user = await User.findByIdAndUpdate(
-			loginUserId,
-			{ [method]: { retweet: postId } },
-			{ new: true }
-		);
+		const updatedPost = await Post.findByIdAndUpdate(postId, { [method]: { retweetedBy: userId } }, { new: true });
 
-		const updatedPost = await Post.findByIdAndUpdate(
-			postId,
-			{ [method]: { retweetUsers: loginUserId } },
-			{ new: true }
-		);
+		const message = deleteRetweet ? 'Unretweet your post' : 'Retweet your post';
+		const user = await User.findById(userId).exec();
 
-		//	notify the user
-		notify(
-			loginUserId,
-			updatedPost.postedBy,
-			'retweet',
-			postId,
-			deletePost
-		);
+		notify(userId, postAuthor.author, 'retweet', `${user.username} ${message}`, postId, deleteRetweet);
 
 		res.status(200).json({
 			status: 'success',
+			state: deleteRetweet ? 'delete' : 'retweet',
 			message: 'updated successfully',
-			newRetweet,
-			updatedPost,
+			data: deleteRetweet ? updatedPost : retweet,
 		});
 	} catch (error) {
-		console.log(
-			'🚀 ~ file: postController.js:180 ~ exports.retweetPost= ~ error:',
-			error
-		);
+		next(error);
 	}
 };
 
 exports.deletePost = async (req, res, next) => {
 	const postId = req.params.id;
-	const loginUserId = req.session.user._id;
+	const userId = req.user.id;
 	try {
 		const deletePost = await Post.findOneAndDelete({
 			_id: postId,
-			postedBy: loginUserId,
+			author: userId,
 		});
 
 		res.status(200).json({
@@ -204,21 +287,63 @@ exports.deletePost = async (req, res, next) => {
 };
 
 exports.pinnedPost = async (req, res, next) => {
-	const loginUserId = req.session.user?._id;
+	const loginUserId = req.user.id;
 	const postId = req.params.id;
-	if (!loginUserId) return res.redirect('login');
+
 	try {
-		if (req.body.pinned) {
-			await Post.updateMany({ postedBy: loginUserId }, { pinned: false });
+		if (!loginUserId) throwError('You must be logged in', 401);
+		if (!postId) throwError('You must provide a post id', 400);
+
+		await Post.updateMany({ author: loginUserId, pinned: { $ne: false } }, { pinned: false });
+
+		const post = await Post.findOne({ author: loginUserId, _id: postId });
+		if (!post) throwError('You can only pin your own posts', 401);
+
+		post.pinned = req.body.pinned;
+		await post.save();
+
+		const pinnedMsg = post.pinned ? 'Post pinned successfully' : 'Post unpinned successfully';
+
+		// notify the user
+		notify(loginUserId, post.author, 'pinned', post._id, post.pinned);
+
+		res.status(200).json({ status: 'success', message: pinnedMsg, data: post });
+	} catch (error) {
+		next(error);
+	}
+};
+
+exports.replyPost = async (req, res, next) => {
+	const postId = req.params.id;
+	const postReplyId = req.params.replyId;
+	const userId = req.user.id;
+	const { content, media } = req.body;
+
+	try {
+		if (!postId || !userId) {
+			throwError('You must provide a post id and user id', 400);
 		}
 
-		await Post.findByIdAndUpdate(postId, req.body);
-		res.status(204).end();
+		const post = await Post.findById(postId).exec();
+
+		if (!post) {
+			throwError('Post not found', 404);
+		}
+
+		const reply = await Reply.create({
+			author: userId,
+			content,
+			media,
+			parentTweetId: postId,
+			parentReplyId: postReplyId,
+		});
+
+		res.status(201).json({
+			status: 'success',
+			message: 'Reply created successfully',
+			data: reply,
+		});
 	} catch (error) {
-		console.log(
-			'🚀 ~ file: postController.js:191 ~ exports.pinnedPost= ~ error:',
-			error
-		);
 		next(error);
 	}
 };

@@ -1,4 +1,4 @@
-const { Notification } = require('../module/notificationSchema');
+const { Notification } = require('../model');
 
 exports.getNotificationPage = async (req, res, next) => {
 	res.render('notificationPage');
@@ -11,15 +11,15 @@ exports.getAllNotification = async (req, res, next) => {
 
 	if (notify) {
 		allNotification = await Notification.find({
-			userTo: req.loginUserId,
+			userTo: req.user.id,
 			opened: false,
 		}).countDocuments();
 	} else {
 		allNotification = await Notification.find({
-			userTo: req.loginUserId,
+			userTo: req.user.id,
 		})
 			.sort({ opened: 1, updatedAt: -1 })
-			.populate({ path: 'userForm', select: '-password' });
+			.populate({ path: 'userFrom', select: '_id name username avatar' });
 	}
 
 	res.status(200).json({ status: 'success', notifications: allNotification });

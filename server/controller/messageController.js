@@ -1,5 +1,4 @@
-const { Chat } = require('../module/chatSchema');
-const { Message } = require('../module/messageSchema');
+const { Chat, Message } = require('../model');
 const { throwError, notify } = require('../util/helper');
 
 exports.createMessage = async (req, res, next) => {
@@ -22,21 +21,14 @@ exports.createMessage = async (req, res, next) => {
 		message = await Message.populate(message, { path: 'sender' });
 		message = await Message.populate(message, { path: 'chat' });
 
-		const chat = await Chat.findOneAndUpdate(
-			{ _id: chatId, users: loginUserId },
-			{ latestMessage: message },
-			{ new: true }
-		);
+		const chat = await Chat.findOneAndUpdate({ _id: chatId, groupMembers: loginUserId }, { latestMessage: message }, { new: true });
 
 		//	send notification
 		notification(chat, message);
 
 		res.status(201).json({ starts: 'success', message });
 	} catch (error) {
-		console.log(
-			'🚀 ~ file: messageController.js:8 ~ exports.createMessage= ~ error:',
-			error
-		);
+		next(error);
 	}
 };
 
@@ -51,16 +43,13 @@ exports.getAllMessages = async (req, res, next) => {
 		});
 		res.status(200).json({ status: 'success', messages });
 	} catch (error) {
-		console.log(
-			'🚀 ~ file: messageController.js:42 ~ exports.getAllMessages= ~ error:',
-			error
-		);
+		next(error);
 	}
 };
 
 function notification(chat, message) {
 	chat.users.forEach(async (userId) => {
 		if (userId.toString() === message.sender._id.toString()) return;
-		await notify(message.sender._id, userId, 'message', chat._id, false);
+		await notify(message.sender._id, userId, 'message', `${message.sender.username} sent you a message`, chat._id, false);
 	});
 }

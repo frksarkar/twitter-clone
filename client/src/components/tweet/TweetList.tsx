@@ -5,7 +5,7 @@ import usePostStore from '../../stores/usePostStore';
 import useTweetActions from '../../hooks/useTweetActions';
 import { authApi } from '../../api';
 
-const fetchMockData = async (cursor: string, limit: number = 10, activeTab: string): Promise<TweetType[]> => {
+const fetchData = async (cursor: string, limit: number = 10, activeTab: string): Promise<TweetType[]> => {
 	const { data } = await authApi.get<{
 		status: string;
 		message: string;
@@ -37,7 +37,7 @@ const TweetList = ({ activeTab }: { activeTab: string }) => {
 		setLoading(true);
 		const currentCursor = posts.length ? posts[posts.length - 1].createdAt : '';
 
-		const newItems = await fetchMockData(cursor || currentCursor, 10, activeTab);
+		const newItems = await fetchData(cursor || currentCursor, 10, activeTab);
 
 		setPosts([...posts, ...newItems]);
 

@@ -1,12 +1,8 @@
-
 const postContainer = document.querySelector('.main-post-container');
 let postValue;
 
 document.addEventListener('DOMContentLoaded', (e) => {
-	updateNotificationCount(
-		'.notificationBags',
-		'/notifications/all?notify=true'
-	);
+	updateNotificationCount('.notificationBags', '/notifications/all?notify=true');
 	updateNotificationCount('#messagesBegs', '/api/chat?notifying=true');
 });
 
@@ -18,10 +14,8 @@ function createHtml(postData) {
 	let retweetTimestamp = '';
 	let postAction = '';
 	let pin = '';
-	if (postData.postedBy?._id === user._id) {
-		postAction = `<button class='pin-btn ${
-			postData.pinned ? 'active' : ''
-		}' data-pin='${
+	if (postData.author?._id === user._id) {
+		postAction = `<button class='pin-btn ${postData.pinned ? 'active' : ''}' data-pin='${
 			postData.pinned ? 'active' : ''
 		}'> <i class="fa-solid fa-thumbtack"></i> </button>
 		<button class='delete-btn'> <i class="fa-solid fa-xmark"></i> </button>`;
@@ -30,26 +24,19 @@ function createHtml(postData) {
 		pin = `<div><i class="fa-solid fa-thumbtack"></i> Pinned post</div>`;
 	}
 	if (retweetData) {
-		retweetBy = postData.postedBy.userName;
+		retweetBy = postData.author.userName;
 		retweetText = `<i class="fa-solid fa-retweet"></i> <span>retweeted by <a href='/profile/${retweetBy}'>@${retweetBy}</a></span>`;
-		retweetTimestamp = `<span>${timeDifference(
-			Date.now(),
-			new Date(postData.createdAt)
-		)}</span>`;
+		retweetTimestamp = `<span>${timeDifference(Date.now(), new Date(postData.createdAt))}</span>`;
 		// this post data place under the end of line
 		postData = postData.retweetData;
 	}
-	const userData = postData.postedBy;
+	const userData = postData.author;
 	const likes = postData.likes?.length;
-	const retweet = postData.retweetUsers?.length;
+	const retweet = postData.retweetedBy?.length;
 	const activeLikeClass = postData?.likes?.includes(user._id) ? 'active' : '';
-	const activeRetweetClass = postData?.retweetUsers?.includes(user._id)
-		? 'active'
-		: '';
+	const activeRetweetClass = postData?.retweetedBy?.includes(user._id) ? 'active' : '';
 	const timestamp = timeDifference(Date.now(), new Date(postData.createdAt));
-	const avatar = postData.postedBy?.profilePicture
-		? postData.postedBy?.profilePicture
-		: 'https://i.pravatar.cc/200';
+	const avatar = postData.author?.profilePicture ? postData.author?.profilePicture : 'https://i.pravatar.cc/200';
 
 	return `<div class="post" data-id='${postData._id}'>
 				<div class='post-container'>
@@ -176,10 +163,8 @@ function timeDifference(current, previous) {
 
 	const elapsed = current - previous;
 
-	if (elapsed < msMinute)
-		return Math.round(elapsed / msSecond) + ' seconds ago';
-	if (elapsed < msHour)
-		return Math.round(elapsed / msMinute) + ' minutes ago';
+	if (elapsed < msMinute) return Math.round(elapsed / msSecond) + ' seconds ago';
+	if (elapsed < msHour) return Math.round(elapsed / msMinute) + ' minutes ago';
 	if (elapsed < msDay) return Math.round(elapsed / msHour) + ' hours ago';
 	if (elapsed < msMonth) return Math.round(elapsed / msDay) + ' days ago';
 	if (elapsed < msYear) return Math.round(elapsed / msMonth) + ' months ago';

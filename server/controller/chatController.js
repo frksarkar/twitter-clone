@@ -1,7 +1,6 @@
 const { default: mongoose } = require('mongoose');
-const { Chat } = require('../module/chatSchema');
 const { throwError } = require('../util/helper');
-const { User } = require('../module/userSchema');
+const { Chat, User } = require('../model');
 
 exports.getChatPage = async (req, res, next) => {
 	const loginUserId = req.session.user._id;
@@ -15,18 +14,18 @@ exports.getChatPage = async (req, res, next) => {
 
 		const messages = await Chat.findOne({
 			_id: chatId,
-			users: { $elemMatch: { $eq: loginUserId } },
-		}).populate({ path: 'users', select: '-password' });
+			groupMembers: { $elemMatch: { $eq: loginUserId } },
+		}).populate({ path: 'groupMembers', select: '-password' });
 
 		if (!messages) {
 			const user = await User.findById(chatId);
-			if (!user) throwError('chat not found', 500);
+			if (!user) return res.status(404).json({ message: 'chat not found' });
 			const chat = await createNewChat(chatId, loginUserId);
 			chatId = chat._id;
 		}
 		res.render('chatPage', { messages });
 	} catch (error) {
-		console.log('🚀 ~ file: chatController.js:11 ~ error:', error);
+		next(error);
 	}
 };
 
@@ -34,21 +33,17 @@ exports.getMessage = async (req, res, next) => {
 	const loginUserId = req.session.user._id;
 	const notifying = req.query.notifying;
 	let chats = await Chat.find({
-		users: loginUserId,
+		groupMembers: loginUserId,
 	})
 		.sort({ updatedAt: -1 })
 		.populate({
-			path: 'users',
+			path: 'groupMembers',
 			select: '-password',
 		})
 		.populate({ path: 'latestMessage', populate: { path: 'sender' } });
 
 	if (notifying) {
-		const unreadChats = chats.filter(
-			(chat) =>
-				chat.latestMessage &&
-				!chat.latestMessage.readBy.includes(loginUserId)
-		);
+		const unreadChats = chats.filter((chat) => chat.latestMessage && !chat.latestMessage.readBy.includes(loginUserId));
 		chats = { notifications: unreadChats.length };
 	}
 
@@ -56,22 +51,22 @@ exports.getMessage = async (req, res, next) => {
 };
 
 exports.createChat = async (req, res, next) => {
-	const loginUserId = req.session?.user._id;
-	const usersId = req.body;
+	const loginUserId = req.user.id;
+	const groupMemberId = req.body;
 
 	try {
-		if (!usersId?.length) throw new Error('provide user id');
-		usersId.push(loginUserId);
+		if (!groupMemberId?.length) throw new Error('provide user id');
+		groupMemberId.push(loginUserId);
 		const chatObj = {
 			createdBy: loginUserId,
-			users: usersId,
+			groupMembers: groupMemberId,
 			isGroupChat: true,
 		};
 		const createChat = await Chat.create(chatObj);
 
 		res.status(201).json(createChat);
 	} catch (error) {
-		console.log('🚀 ~ file: chatController.js:16 ~ error:', error);
+		next(error);
 	}
 };
 
@@ -79,7 +74,7 @@ function createNewChat(chatId, loginUserId) {
 	return Chat.findByIdAndUpdate(
 		{
 			_id: chatId,
-			users: {
+			groupMembers: {
 				$size: 2,
 				$elemMatch: { $eq: chatId },
 				$elemMatch: { $eq: loginUserId },
@@ -87,7 +82,7 @@ function createNewChat(chatId, loginUserId) {
 		},
 		{
 			createdBy: loginUserId,
-			$setOnInsert: { users: [chatId, loginUserId] },
+			$setOnInsert: { groupMembers: [chatId, loginUserId] },
 		},
 		{ new: true, upsert: true }
 	);
@@ -105,16 +100,13 @@ exports.updateChat = async (req, res, next) => {
 		const chatData = await Chat.findOneAndUpdate(
 			{
 				_id: chatId,
-				users: loginUserId,
+				groupMembers: loginUserId,
 			},
 			{ chatName }
 		);
-		console.log(
-			'🚀 ~ file: chatController.js:95 ~ exports.updateChat= ~ chatData:',
-			chatData
-		);
+
 		res.status(200).json({ status: 'success' });
 	} catch (error) {
-		console.log('🚀 ~ file: chatController.js:89 ~ error:', error);
+		next(error);
 	}
 };
